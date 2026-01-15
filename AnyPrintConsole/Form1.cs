@@ -26,14 +26,17 @@ namespace AnyPrintConsole
 
         private void SetupUI()
         {
-            // Window style (keep X button)
+            // Window style (keep title bar + X button for debugging)
             this.Text = "AnyPrint POS";
             this.WindowState = FormWindowState.Maximized;
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.BackColor = Color.Black;
 
-            // Logo (acts as header)
+            // Hide text title — logo replaces it
+            titleLabel.Visible = false;
+
+            // Logo (responsive header)
             PictureBox logo = new PictureBox();
             string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Anyprint.png");
 
@@ -43,44 +46,57 @@ namespace AnyPrintConsole
             }
 
             logo.SizeMode = PictureBoxSizeMode.Zoom;
-            logo.Width = 420;
-            logo.Height = 150;
-            logo.Top = 30;
+
+            // Responsive sizing
+            int logoWidth = (int)(this.Width * 0.55);   // 55% of screen width
+            int logoHeight = (int)(logoWidth * 0.35);   // keep aspect ratio
+
+            logo.Width = logoWidth;
+            logo.Height = logoHeight;
+            logo.Top = 20;
             logo.Left = (this.Width - logo.Width) / 2;
             logo.Anchor = AnchorStyles.Top;
+
             this.Controls.Add(logo);
 
-            // Hide text title — logo replaces it
-            titleLabel.Visible = false;
-
-            int baseTop = 220;
+            // Layout starts below logo
+            int baseTop = logo.Bottom + 40;
             int centerX = (this.Width - textBoxCode.Width) / 2;
 
-            codeLabel.Top = baseTop - 20;
+            // Code label
+            codeLabel.Top = baseTop;
             codeLabel.Left = centerX;
             codeLabel.ForeColor = Color.White;
+            codeLabel.Font = new Font("Segoe UI", 18, FontStyle.Regular);
 
-            textBoxCode.Top = baseTop + 20;
+            // Code input
+            textBoxCode.Top = baseTop + 40;
             textBoxCode.Left = centerX;
             textBoxCode.Font = new Font("Segoe UI", 28, FontStyle.Bold);
 
-            btnGetFile.Top = baseTop + 100;
+            // Get file button
+            btnGetFile.Top = baseTop + 120;
             btnGetFile.Left = centerX;
             btnGetFile.Font = new Font("Segoe UI", 22, FontStyle.Bold);
 
-            fileLabel.Top = baseTop + 190;
+            // File label
+            fileLabel.Top = baseTop + 210;
             fileLabel.Left = centerX;
             fileLabel.ForeColor = Color.White;
+            fileLabel.Font = new Font("Segoe UI", 16, FontStyle.Regular);
 
-            textBoxFile.Top = baseTop + 220;
+            // File textbox
+            textBoxFile.Top = baseTop + 245;
             textBoxFile.Left = centerX;
             textBoxFile.Font = new Font("Segoe UI", 16, FontStyle.Regular);
 
-            btnPrint.Top = baseTop + 280;
+            // Print button
+            btnPrint.Top = baseTop + 305;
             btnPrint.Left = centerX;
             btnPrint.Font = new Font("Segoe UI", 22, FontStyle.Bold);
 
-            statusLabel.Top = baseTop + 360;
+            // Status label
+            statusLabel.Top = baseTop + 390;
             statusLabel.Left = centerX;
             statusLabel.ForeColor = Color.White;
             statusLabel.Font = new Font("Segoe UI", 16, FontStyle.Regular);
