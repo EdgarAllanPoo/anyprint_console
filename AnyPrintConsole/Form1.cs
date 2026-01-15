@@ -107,7 +107,7 @@ namespace AnyPrintConsole
 
         private void LayoutControls()
         {
-            int baseTop = logo.Bottom + 5;   // tight spacing
+            int baseTop = logo.Bottom;   // tight spacing
             int centerX = (this.ClientSize.Width - textBoxCode.Width) / 2;
 
             codeLabel.Top = baseTop;
