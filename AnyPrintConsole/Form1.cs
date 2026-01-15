@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Spire.Pdf;
+using System.Drawing.Printing;
 
 namespace AnyPrintConsole
 {
@@ -12,9 +12,11 @@ namespace AnyPrintConsole
         private AnyPrintApiClient apiClient = new AnyPrintApiClient();
 
         private Process onScreenKeyboardproc;
-        private string ffile;
         private string filePath;
         private int copiesToPrint = 1;
+
+        // Update this path if Ghostscript version changes
+        private readonly string ghostscriptPath = @"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe";
 
         public Form1()
         {
@@ -30,7 +32,7 @@ namespace AnyPrintConsole
         {
             statusLabel.Text = "Status: Downloading...";
             textBoxFile.Text = "";
-            ffile = null;
+            filePath = null;
 
             string code = textBoxCode.Text.Trim();
 
@@ -49,10 +51,7 @@ namespace AnyPrintConsole
                 string folder = @"C:\AnyPrintFolder\FilesToPrint";
                 Directory.CreateDirectory(folder);
 
-                string localFilePath = apiClient.DownloadFile(job.fileUrl, folder);
-
-                ffile = Path.GetFileName(localFilePath);
-                filePath = localFilePath;
+                filePath = apiClient.DownloadFile(job.fileUrl, folder);
                 copiesToPrint = job.copies;
 
                 textBoxFile.Text = job.filename + $"  (Copies: {job.copies})";
@@ -75,31 +74,24 @@ namespace AnyPrintConsole
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(ffile))
+            if (string.IsNullOrEmpty(filePath))
             {
                 MessageBox.Show("No file loaded");
                 return;
             }
 
-            statusLabel.Text = "Status: Printing...";
+            statusLabel.Text = $"Status: Printing {copiesToPrint} copies...";
 
             try
             {
-                PdfDocument pdf = new PdfDocument();
-                pdf.LoadFromFile(@"C:\AnyPrintFolder\FilesToPrint\" + ffile);
+                PrintWithGhostscript(filePath, copiesToPrint);
 
-                // Set number of copies
-                pdf.PrintSettings.Copies = (short)copiesToPrint;
-
-                // Print to default printer
-                pdf.Print();
-
-                statusLabel.Text = $"Status: Printing {copiesToPrint} copies";
+                statusLabel.Text = $"Status: Print sent ({copiesToPrint} copies)";
 
                 if (File.Exists(filePath))
                     File.Delete(filePath);
 
-                ffile = null;
+                filePath = null;
                 textBoxCode.Text = "";
                 textBoxFile.Text = "";
             }
@@ -107,6 +99,43 @@ namespace AnyPrintConsole
             {
                 MessageBox.Show("Print failed: " + ex.Message);
                 statusLabel.Text = "Status: Print failed";
+            }
+        }
+
+        private void PrintWithGhostscript(string pdfPath, int copies)
+        {
+            if (!File.Exists(ghostscriptPath))
+                throw new Exception("Ghostscript not found. Please install Ghostscript.");
+
+            PrinterSettings printerSettings = new PrinterSettings();
+            string printerName = printerSettings.PrinterName;
+
+            for (int i = 0; i < copies; i++)
+            {
+                string args =
+                    $"-dPrinted -dBATCH -dNOPAUSE -sDEVICE=mswinpr2 " +
+                    $"-sOutputFile=\"%printer%{printerName}\" \"{pdfPath}\"";
+
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = ghostscriptPath,
+                    Arguments = args,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                };
+
+                using (Process p = Process.Start(psi))
+                {
+                    p.WaitForExit();
+
+                    if (p.ExitCode != 0)
+                    {
+                        string err = p.StandardError.ReadToEnd();
+                        throw new Exception("Ghostscript error: " + err);
+                    }
+                }
             }
         }
 
