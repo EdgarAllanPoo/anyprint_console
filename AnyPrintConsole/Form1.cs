@@ -45,31 +45,44 @@ namespace AnyPrintConsole
 
             this.Controls.Add(logo);
 
-            // Move existing controls to center layout
+            // Center layout
             int baseTop = 240;
             int centerX = (this.Width - textBoxCode.Width) / 2;
 
-            textBoxCode.Top = baseTop;
+            titleLabel.Top = baseTop - 120;
+            titleLabel.Left = (this.Width - titleLabel.Width) / 2;
+            titleLabel.ForeColor = Color.White;
+
+            codeLabel.Top = baseTop - 20;
+            codeLabel.Left = centerX;
+            codeLabel.ForeColor = Color.White;
+
+            textBoxCode.Top = baseTop + 20;
             textBoxCode.Left = centerX;
             textBoxCode.Font = new Font("Segoe UI", 28, FontStyle.Bold);
 
-            button1.Top = baseTop + 90;
-            button1.Left = centerX;
-            button1.Font = new Font("Segoe UI", 22, FontStyle.Bold);
+            btnGetFile.Top = baseTop + 100;
+            btnGetFile.Left = centerX;
+            btnGetFile.Font = new Font("Segoe UI", 22, FontStyle.Bold);
 
-            textBoxFile.Top = baseTop + 180;
+            fileLabel.Top = baseTop + 190;
+            fileLabel.Left = centerX;
+            fileLabel.ForeColor = Color.White;
+
+            textBoxFile.Top = baseTop + 220;
             textBoxFile.Left = centerX;
-            textBoxFile.Font = new Font("Segoe UI", 18, FontStyle.Regular);
+            textBoxFile.Font = new Font("Segoe UI", 16, FontStyle.Regular);
 
-            button2.Top = baseTop + 260;
-            button2.Left = centerX;
-            button2.Font = new Font("Segoe UI", 22, FontStyle.Bold);
+            btnPrint.Top = baseTop + 280;
+            btnPrint.Left = centerX;
+            btnPrint.Font = new Font("Segoe UI", 22, FontStyle.Bold);
 
-            statusLabel.Top = baseTop + 350;
+            statusLabel.Top = baseTop + 360;
             statusLabel.Left = centerX;
             statusLabel.ForeColor = Color.White;
             statusLabel.Font = new Font("Segoe UI", 16, FontStyle.Regular);
         }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
