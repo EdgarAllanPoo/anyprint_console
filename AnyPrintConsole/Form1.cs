@@ -32,7 +32,7 @@ namespace AnyPrintConsole
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.Black;
 
-            // Logo (safe path for Release build)
+            // Logo
             PictureBox logo = new PictureBox();
             string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Anyprint.png");
             logo.Image = Image.FromFile(logoPath);
@@ -42,10 +42,8 @@ namespace AnyPrintConsole
             logo.Top = 40;
             logo.Left = (this.Width - logo.Width) / 2;
             logo.Anchor = AnchorStyles.Top;
-
             this.Controls.Add(logo);
 
-            // Center layout
             int baseTop = 240;
             int centerX = (this.Width - textBoxCode.Width) / 2;
 
@@ -83,13 +81,6 @@ namespace AnyPrintConsole
             statusLabel.Font = new Font("Segoe UI", 16, FontStyle.Regular);
         }
 
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            BackColor = Color.Black;
-            statusLabel.ForeColor = Color.White;
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
             statusLabel.Text = "Status: Downloading...";
@@ -98,7 +89,6 @@ namespace AnyPrintConsole
 
             string code = textBoxCode.Text.Trim();
 
-            // Enforce 8-digit numeric code
             if (code.Length != 8 || !long.TryParse(code, out _))
             {
                 MessageBox.Show("Invalid code. Code must be 8 digits.");
@@ -198,31 +188,6 @@ namespace AnyPrintConsole
                         throw new Exception("Ghostscript error: " + err);
                     }
                 }
-            }
-        }
-
-        private void CallKeyboard()
-        {
-            foreach (Process p in Process.GetProcessesByName("TabTip"))
-            {
-                p.Kill();
-            }
-
-            string progFiles = @"C:\Program Files\Common Files\microsoft shared\ink";
-            string onScreenKeyboardPath = Path.Combine(progFiles, "TabTip.exe");
-            onScreenKeyboardproc = Process.Start(onScreenKeyboardPath);
-        }
-
-        private void textBox2_Enter(object sender, EventArgs e)
-        {
-            CallKeyboard();
-        }
-
-        private void textBox2_Leave(object sender, EventArgs e)
-        {
-            foreach (Process p in Process.GetProcessesByName("TabTip"))
-            {
-                p.Kill();
             }
         }
     }
