@@ -21,11 +21,60 @@ namespace AnyPrintConsole
         public Form1()
         {
             InitializeComponent();
+            SetupUI();
+        }
+
+        private void SetupUI()
+        {
+            // Window style
+            this.Text = "AnyPrint POS";
+            this.WindowState = FormWindowState.Maximized;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.BackColor = Color.Black;
+
+            // Logo (safe path for Release build)
+            PictureBox logo = new PictureBox();
+            string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Anyprint.png");
+            logo.Image = Image.FromFile(logoPath);
+            logo.SizeMode = PictureBoxSizeMode.Zoom;
+            logo.Width = 400;
+            logo.Height = 140;
+            logo.Top = 40;
+            logo.Left = (this.Width - logo.Width) / 2;
+            logo.Anchor = AnchorStyles.Top;
+
+            this.Controls.Add(logo);
+
+            // Move existing controls to center layout
+            int baseTop = 240;
+            int centerX = (this.Width - textBoxCode.Width) / 2;
+
+            textBoxCode.Top = baseTop;
+            textBoxCode.Left = centerX;
+            textBoxCode.Font = new Font("Segoe UI", 28, FontStyle.Bold);
+
+            button1.Top = baseTop + 90;
+            button1.Left = centerX;
+            button1.Font = new Font("Segoe UI", 22, FontStyle.Bold);
+
+            textBoxFile.Top = baseTop + 180;
+            textBoxFile.Left = centerX;
+            textBoxFile.Font = new Font("Segoe UI", 18, FontStyle.Regular);
+
+            button2.Top = baseTop + 260;
+            button2.Left = centerX;
+            button2.Font = new Font("Segoe UI", 22, FontStyle.Bold);
+
+            statusLabel.Top = baseTop + 350;
+            statusLabel.Left = centerX;
+            statusLabel.ForeColor = Color.White;
+            statusLabel.Font = new Font("Segoe UI", 16, FontStyle.Regular);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            BackColor = Color.FromArgb(230, 226, 223);
+            BackColor = Color.Black;
+            statusLabel.ForeColor = Color.White;
         }
 
         private void button1_Click(object sender, EventArgs e)
