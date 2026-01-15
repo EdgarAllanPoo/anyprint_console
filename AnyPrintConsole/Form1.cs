@@ -107,7 +107,10 @@ namespace AnyPrintConsole
 
         private void LayoutControls()
         {
-            int baseTop = logo.Bottom;   // tight spacing
+            // Calculate real visible logo bottom (not PictureBox bottom)
+            int visibleLogoHeight = logo.Height;
+            int baseTop = logo.Top + visibleLogoHeight + 10;   // tight spacing under logo
+
             int centerX = (this.ClientSize.Width - textBoxCode.Width) / 2;
 
             codeLabel.Top = baseTop;
@@ -136,6 +139,7 @@ namespace AnyPrintConsole
             statusLabel.Left = centerX;
             statusLabel.Font = new Font("Segoe UI", 14);
         }
+
 
         private void button1_Click(object sender, EventArgs e)
         {
