@@ -12,12 +12,18 @@ namespace AnyPrintConsole
         private AnyPrintApiClient apiClient = new AnyPrintApiClient();
 
         private Process onScreenKeyboardproc;
-        string ffile;
-        string filePath;
+        private string ffile;
+        private string filePath;
+        private int copiesToPrint = 1;
 
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            BackColor = Color.FromArgb(230, 226, 223);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -28,9 +34,10 @@ namespace AnyPrintConsole
 
             string code = textBoxCode.Text.Trim();
 
-            if (code.Length < 6)
+            // Enforce 8-digit numeric code
+            if (code.Length != 8 || !long.TryParse(code, out _))
             {
-                MessageBox.Show("Invalid code");
+                MessageBox.Show("Invalid code. Code must be 8 digits.");
                 statusLabel.Text = "Status: Invalid code";
                 return;
             }
@@ -46,8 +53,9 @@ namespace AnyPrintConsole
 
                 ffile = Path.GetFileName(localFilePath);
                 filePath = localFilePath;
+                copiesToPrint = job.copies;
 
-                textBoxFile.Text = job.filename;
+                textBoxFile.Text = job.filename + $"  (Copies: {job.copies})";
                 statusLabel.Text = "Status: Ready to print";
             }
             catch (Exception ex)
@@ -65,24 +73,6 @@ namespace AnyPrintConsole
             }
         }
 
-        private void CallKeyboard()
-        {
-            Process[] oslProcessesArry = Process.GetProcessesByName("TabTip");
-            foreach (Process onScreenProcess in oslProcessesArry)
-            {
-                onScreenProcess.Kill();
-            }
-
-            string progFiles = @"C:\Program Files\Common Files\microsoft shared\ink";
-            string onScreenKeyboardPath = Path.Combine(progFiles, "TabTip.exe");
-            onScreenKeyboardproc = Process.Start(onScreenKeyboardPath);
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            BackColor = Color.FromArgb(230, 226, 223);
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(ffile))
@@ -97,9 +87,13 @@ namespace AnyPrintConsole
             {
                 PdfDocument pdf = new PdfDocument();
                 pdf.LoadFromFile(@"C:\AnyPrintFolder\FilesToPrint\" + ffile);
-                pdf.Print();
 
-                statusLabel.Text = "Status: Print sent";
+                var settings = new Spire.Pdf.Print.PrintSettings();
+                settings.Copies = (short)copiesToPrint;
+
+                pdf.Print(settings);
+
+                statusLabel.Text = $"Status: Printing {copiesToPrint} copies";
 
                 if (File.Exists(filePath))
                     File.Delete(filePath);
@@ -115,6 +109,18 @@ namespace AnyPrintConsole
             }
         }
 
+        private void CallKeyboard()
+        {
+            foreach (Process p in Process.GetProcessesByName("TabTip"))
+            {
+                p.Kill();
+            }
+
+            string progFiles = @"C:\Program Files\Common Files\microsoft shared\ink";
+            string onScreenKeyboardPath = Path.Combine(progFiles, "TabTip.exe");
+            onScreenKeyboardproc = Process.Start(onScreenKeyboardPath);
+        }
+
         private void textBox2_Enter(object sender, EventArgs e)
         {
             CallKeyboard();
@@ -122,17 +128,9 @@ namespace AnyPrintConsole
 
         private void textBox2_Leave(object sender, EventArgs e)
         {
-            foreach (Process onScreenProcess in Process.GetProcessesByName("TabTip"))
+            foreach (Process p in Process.GetProcessesByName("TabTip"))
             {
-                onScreenProcess.Kill();
-            }
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            foreach (Process onProcess in Process.GetProcessesByName("TabTip"))
-            {
-                onProcess.Kill();
+                p.Kill();
             }
         }
     }
