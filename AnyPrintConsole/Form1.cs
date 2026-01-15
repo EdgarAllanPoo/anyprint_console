@@ -88,10 +88,11 @@ namespace AnyPrintConsole
                 PdfDocument pdf = new PdfDocument();
                 pdf.LoadFromFile(@"C:\AnyPrintFolder\FilesToPrint\" + ffile);
 
-                var settings = new Spire.Pdf.Print.PrintSettings();
-                settings.Copies = (short)copiesToPrint;
+                // Set number of copies
+                pdf.PrintSettings.Copies = (short)copiesToPrint;
 
-                pdf.Print(settings);
+                // Print to default printer
+                pdf.Print();
 
                 statusLabel.Text = $"Status: Printing {copiesToPrint} copies";
 
