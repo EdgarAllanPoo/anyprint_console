@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Net;
 using System.Windows.Forms;
 using Spire.Pdf;
 
@@ -14,7 +13,6 @@ namespace AnyPrintConsole
 
         private Process onScreenKeyboardproc;
         string ffile;
-        int codelenght;
         string filePath;
 
         public Form1()
@@ -65,13 +63,7 @@ namespace AnyPrintConsole
                     statusLabel.Text = "Status: Network error";
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to download file: " + ex.Message);
-                statusLabel.Text = "Status: Download failed";
-            }
         }
-
 
         private void CallKeyboard()
         {
@@ -84,11 +76,6 @@ namespace AnyPrintConsole
             string progFiles = @"C:\Program Files\Common Files\microsoft shared\ink";
             string onScreenKeyboardPath = Path.Combine(progFiles, "TabTip.exe");
             onScreenKeyboardproc = Process.Start(onScreenKeyboardPath);
-        }
-
-        private void textBox2_Enter(object sender, EventArgs e)
-        {
-            CallKeyboard();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -128,11 +115,14 @@ namespace AnyPrintConsole
             }
         }
 
+        private void textBox2_Enter(object sender, EventArgs e)
+        {
+            CallKeyboard();
+        }
 
         private void textBox2_Leave(object sender, EventArgs e)
         {
-            Process[] oslProcessesArry = Process.GetProcessesByName("TabTip");
-            foreach (Process onScreenProcess in oslProcessesArry)
+            foreach (Process onScreenProcess in Process.GetProcessesByName("TabTip"))
             {
                 onScreenProcess.Kill();
             }
