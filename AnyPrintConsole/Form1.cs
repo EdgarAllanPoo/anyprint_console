@@ -59,7 +59,7 @@ namespace AnyPrintConsole
                 }
                 else
                 {
-                    MessageBox.Show("Network error. Please check internet connection.");
+                    MessageBox.Show("Network error:\n\n" + ex.ToString());
                     statusLabel.Text = "Status: Network error";
                 }
             }
