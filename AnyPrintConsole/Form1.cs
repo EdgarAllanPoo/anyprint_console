@@ -29,8 +29,7 @@ namespace AnyPrintConsole
 
         private void SetupUI()
         {
-            this.AutoScaleDimensions = new SizeF(96F, 96F);
-            this.AutoScaleMode = AutoScaleMode.None;
+            this.SuspendLayout();
 
             // Window style (keep X button)
             this.Text = "AnyPrint POS";
@@ -40,6 +39,12 @@ namespace AnyPrintConsole
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = true;
             this.BackColor = Color.White;
+
+            // 🔧 Disable all designer anchoring
+            foreach (Control c in this.Controls)
+            {
+                c.Anchor = AnchorStyles.None;
+            }
 
             // Hide text title — logo replaces it
             titleLabel.Visible = false;
@@ -53,7 +58,6 @@ namespace AnyPrintConsole
 
             logo.SizeMode = PictureBoxSizeMode.Zoom;
             logo.Top = 10;
-            logo.Anchor = AnchorStyles.Top;
 
             this.Controls.Add(logo);
 
@@ -63,12 +67,12 @@ namespace AnyPrintConsole
             statusLabel.ForeColor = Color.DimGray;
 
             // Button styling
-            btnGetFile.BackColor = Color.FromArgb(0, 120, 215); // Windows blue
+            btnGetFile.BackColor = Color.FromArgb(0, 120, 215);
             btnGetFile.ForeColor = Color.White;
             btnGetFile.FlatStyle = FlatStyle.Flat;
             btnGetFile.FlatAppearance.BorderSize = 0;
 
-            btnPrint.BackColor = Color.FromArgb(0, 180, 120);  // Green print button
+            btnPrint.BackColor = Color.FromArgb(0, 180, 120);
             btnPrint.ForeColor = Color.White;
             btnPrint.FlatStyle = FlatStyle.Flat;
             btnPrint.FlatAppearance.BorderSize = 0;
@@ -79,6 +83,9 @@ namespace AnyPrintConsole
 
             textBoxFile.BackColor = Color.White;
             textBoxFile.ForeColor = Color.Black;
+
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -91,43 +98,48 @@ namespace AnyPrintConsole
         {
             if (logo.Image == null) return;
 
-            int maxWidth = (int)(this.ClientSize.Width * 0.28);  // good POS proportion
+            int maxWidth = (int)(this.ClientSize.Width * 0.28);
 
-            float aspectRatio = (float)logo.Image.Height / logo.Image.Width;
-            int height = (int)(maxWidth * aspectRatio);
+            float ratio = (float)logo.Image.Height / logo.Image.Width;
+            int height = (int)(maxWidth * ratio);
 
             logo.Width = maxWidth;
             logo.Height = height;
-
             logo.Left = (this.ClientSize.Width - logo.Width) / 2;
-            logo.Top = 20;
+            logo.Top = 10;
         }
-        
+
         private void LayoutControls()
         {
-            int baseTop = logo.Bottom + 5;   // very tight header spacing
+            int y = logo.Bottom + 10;   // start immediately under logo
             int centerX = (this.ClientSize.Width - textBoxCode.Width) / 2;
 
-            codeLabel.Top = baseTop;
             codeLabel.Left = centerX;
+            codeLabel.Top = y;
+            y += codeLabel.Height + 8;
 
-            textBoxCode.Top = codeLabel.Bottom + 10;
             textBoxCode.Left = centerX;
+            textBoxCode.Top = y;
+            y += textBoxCode.Height + 15;
 
-            btnGetFile.Top = textBoxCode.Bottom + 15;
             btnGetFile.Left = centerX;
+            btnGetFile.Top = y;
+            y += btnGetFile.Height + 20;
 
-            fileLabel.Top = btnGetFile.Bottom + 20;
             fileLabel.Left = centerX;
+            fileLabel.Top = y;
+            y += fileLabel.Height + 8;
 
-            textBoxFile.Top = fileLabel.Bottom + 8;
             textBoxFile.Left = centerX;
+            textBoxFile.Top = y;
+            y += textBoxFile.Height + 20;
 
-            btnPrint.Top = textBoxFile.Bottom + 20;
             btnPrint.Left = centerX;
+            btnPrint.Top = y;
+            y += btnPrint.Height + 15;
 
-            statusLabel.Top = btnPrint.Bottom + 15;
             statusLabel.Left = centerX;
+            statusLabel.Top = y;
         }
 
         private void button1_Click(object sender, EventArgs e)
