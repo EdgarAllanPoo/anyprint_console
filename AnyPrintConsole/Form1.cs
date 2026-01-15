@@ -22,6 +22,7 @@ namespace AnyPrintConsole
         public Form1()
         {
             InitializeComponent();
+            this.AutoScaleMode = AutoScaleMode.None; 
             SetupUI();
             this.Shown += Form1_Shown;   // wait until fullscreen exists
         }
@@ -87,8 +88,8 @@ namespace AnyPrintConsole
         {
             int screenWidth = this.ClientSize.Width;
 
-            int logoWidth = (int)(screenWidth * 0.55);   // slightly smaller width
-            int logoHeight = 160;                        // fixed compact header height
+            int logoWidth = (int)(screenWidth * 0.7);   // 70% of window width
+            int logoHeight = 260;                       // BIG header height
 
             logo.Width = logoWidth;
             logo.Height = logoHeight;
@@ -97,7 +98,7 @@ namespace AnyPrintConsole
 
         private void LayoutControls()
         {
-            int baseTop = logo.Bottom + 15;   // much tighter spacing
+            int baseTop = logo.Bottom + 5;   // much tighter spacing
             int centerX = (this.ClientSize.Width - textBoxCode.Width) / 2;
 
             codeLabel.Top = baseTop;
