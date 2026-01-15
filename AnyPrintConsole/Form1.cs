@@ -33,7 +33,7 @@ namespace AnyPrintConsole
             this.MaximizeBox = false;
             this.BackColor = Color.Black;
 
-            // Logo (next to exe)
+            // Logo (acts as header)
             PictureBox logo = new PictureBox();
             string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Anyprint.png");
 
@@ -43,19 +43,18 @@ namespace AnyPrintConsole
             }
 
             logo.SizeMode = PictureBoxSizeMode.Zoom;
-            logo.Width = 400;
-            logo.Height = 140;
-            logo.Top = 40;
+            logo.Width = 420;
+            logo.Height = 150;
+            logo.Top = 30;
             logo.Left = (this.Width - logo.Width) / 2;
             logo.Anchor = AnchorStyles.Top;
             this.Controls.Add(logo);
 
-            int baseTop = 240;
-            int centerX = (this.Width - textBoxCode.Width) / 2;
+            // Hide text title — logo replaces it
+            titleLabel.Visible = false;
 
-            titleLabel.Top = baseTop - 120;
-            titleLabel.Left = (this.Width - titleLabel.Width) / 2;
-            titleLabel.ForeColor = Color.White;
+            int baseTop = 220;
+            int centerX = (this.Width - textBoxCode.Width) / 2;
 
             codeLabel.Top = baseTop - 20;
             codeLabel.Left = centerX;
