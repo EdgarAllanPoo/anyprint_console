@@ -86,13 +86,22 @@ namespace AnyPrintConsole
 
         private void ResizeLogo()
         {
+            if (logo.Image == null) return;
+
             int screenWidth = this.ClientSize.Width;
 
-            int logoWidth = (int)(screenWidth * 0.7);   // 70% of window width
-            int logoHeight = 260;                       // BIG header height
+            // Make logo wide and dominant
+            int logoWidth = (int)(screenWidth * 0.65);
+
+            // Calculate height from actual image ratio
+            float ratio = (float)logo.Image.Height / logo.Image.Width;
+            int logoHeight = (int)(logoWidth * ratio);
 
             logo.Width = logoWidth;
             logo.Height = logoHeight;
+
+            // Tight top margin
+            logo.Top = 10;
             logo.Left = (this.ClientSize.Width - logo.Width) / 2;
         }
 
