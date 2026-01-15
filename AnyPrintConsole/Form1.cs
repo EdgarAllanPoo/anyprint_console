@@ -15,6 +15,7 @@ namespace AnyPrintConsole
         private int copiesToPrint = 1;
 
         private PictureBox logo;
+        private Process onScreenKeyboardProc;
 
         // Update this path if Ghostscript version changes
         private readonly string ghostscriptPath = @"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe";
@@ -55,6 +56,10 @@ namespace AnyPrintConsole
 
             // Layout controls
             LayoutControls();
+
+            // Keyboard control
+            textBoxCode.Enter += TextBoxCode_Enter;
+            textBoxCode.Leave += TextBoxCode_Leave;
 
             // Colors
             codeLabel.ForeColor = Color.Black;
@@ -170,6 +175,17 @@ namespace AnyPrintConsole
             }
         }
 
+        private void TextBoxCode_Enter(object sender, EventArgs e)
+        {
+            ShowKeyboard();
+        }
+
+        private void TextBoxCode_Leave(object sender, EventArgs e)
+        {
+            HideKeyboard();
+        }
+
+
         private void PrintWithGhostscript(string pdfPath, int copies)
         {
             if (!File.Exists(ghostscriptPath))
@@ -198,6 +214,34 @@ namespace AnyPrintConsole
                     p.WaitForExit();
                 }
             }
+        }
+
+        private void ShowKeyboard()
+        {
+            try
+            {
+                // Kill existing keyboard if already open
+                foreach (var proc in Process.GetProcessesByName("TabTip"))
+                    proc.Kill();
+
+                string tabTipPath = @"C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe";
+
+                if (File.Exists(tabTipPath))
+                {
+                    onScreenKeyboardProc = Process.Start(tabTipPath);
+                }
+            }
+            catch { }
+        }
+
+        private void HideKeyboard()
+        {
+            try
+            {
+                foreach (var proc in Process.GetProcessesByName("TabTip"))
+                    proc.Kill();
+            }
+            catch { }
         }
     }
 }

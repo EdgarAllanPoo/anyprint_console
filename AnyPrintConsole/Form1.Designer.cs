@@ -45,7 +45,7 @@
             this.titleLabel.Location = new System.Drawing.Point(250, 30);
 
             // Code Label
-            this.codeLabel.Text = "Enter Print Code";
+            this.codeLabel.Text = "Enter Print Code:";
             this.codeLabel.Font = new System.Drawing.Font("Segoe UI", 16F);
             this.codeLabel.AutoSize = true;
             this.codeLabel.Location = new System.Drawing.Point(300, 110);
