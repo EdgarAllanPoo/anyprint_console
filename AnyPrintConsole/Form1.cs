@@ -11,9 +11,10 @@ namespace AnyPrintConsole
     {
         private AnyPrintApiClient apiClient = new AnyPrintApiClient();
 
-        private Process onScreenKeyboardproc;
         private string filePath;
         private int copiesToPrint = 1;
+
+        private PictureBox logo;
 
         // Update this path if Ghostscript version changes
         private readonly string ghostscriptPath = @"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe";
@@ -22,84 +23,108 @@ namespace AnyPrintConsole
         {
             InitializeComponent();
             SetupUI();
+            this.Shown += Form1_Shown;   // wait until fullscreen exists
         }
 
         private void SetupUI()
         {
-            // Window style (keep title bar + X button for debugging)
+            // Window style (keep X button)
             this.Text = "AnyPrint POS";
-            this.WindowState = FormWindowState.Maximized;
+            this.WindowState = FormWindowState.Normal;
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Size = new Size(1280, 800);
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.BackColor = Color.Black;
+            this.BackColor = Color.White;
 
             // Hide text title — logo replaces it
             titleLabel.Visible = false;
 
-            // Logo (responsive header)
-            PictureBox logo = new PictureBox();
+            // Create logo
+            logo = new PictureBox();
             string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Anyprint.png");
 
             if (File.Exists(logoPath))
-            {
                 logo.Image = Image.FromFile(logoPath);
-            }
 
             logo.SizeMode = PictureBoxSizeMode.Zoom;
-
-            // Responsive sizing
-            int logoWidth = (int)(this.Width * 0.55);   // 55% of screen width
-            int logoHeight = (int)(logoWidth * 0.35);   // keep aspect ratio
-
-            logo.Width = logoWidth;
-            logo.Height = logoHeight;
             logo.Top = 20;
-            logo.Left = (this.Width - logo.Width) / 2;
             logo.Anchor = AnchorStyles.Top;
 
             this.Controls.Add(logo);
 
-            // Layout starts below logo
-            int baseTop = logo.Bottom + 40;
-            int centerX = (this.Width - textBoxCode.Width) / 2;
+            // POS colors
+            codeLabel.ForeColor = Color.Black;
+            fileLabel.ForeColor = Color.Black;
+            statusLabel.ForeColor = Color.DimGray;
 
-            // Code label
+            // Button styling
+            btnGetFile.BackColor = Color.FromArgb(0, 120, 215); // Windows blue
+            btnGetFile.ForeColor = Color.White;
+            btnGetFile.FlatStyle = FlatStyle.Flat;
+            btnGetFile.FlatAppearance.BorderSize = 0;
+
+            btnPrint.BackColor = Color.FromArgb(0, 180, 120);  // Green print button
+            btnPrint.ForeColor = Color.White;
+            btnPrint.FlatStyle = FlatStyle.Flat;
+            btnPrint.FlatAppearance.BorderSize = 0;
+
+            // Textboxes
+            textBoxCode.BackColor = Color.White;
+            textBoxCode.ForeColor = Color.Black;
+
+            textBoxFile.BackColor = Color.White;
+            textBoxFile.ForeColor = Color.Black;
+        }
+
+        private void Form1_Shown(object sender, EventArgs e)
+        {
+            ResizeLogo();
+            LayoutControls();
+        }
+
+        private void ResizeLogo()
+        {
+            int screenWidth = this.ClientSize.Width;
+
+            int logoWidth = (int)(screenWidth * 0.6);   // 60% of screen
+            int logoHeight = (int)(logoWidth * 0.35);   // keep ratio
+
+            logo.Width = logoWidth;
+            logo.Height = logoHeight;
+            logo.Left = (this.ClientSize.Width - logo.Width) / 2;
+        }
+
+        private void LayoutControls()
+        {
+            int baseTop = logo.Bottom + 40;
+            int centerX = (this.ClientSize.Width - textBoxCode.Width) / 2;
+
             codeLabel.Top = baseTop;
             codeLabel.Left = centerX;
-            codeLabel.ForeColor = Color.White;
-            codeLabel.Font = new Font("Segoe UI", 18, FontStyle.Regular);
 
-            // Code input
             textBoxCode.Top = baseTop + 40;
             textBoxCode.Left = centerX;
             textBoxCode.Font = new Font("Segoe UI", 28, FontStyle.Bold);
 
-            // Get file button
             btnGetFile.Top = baseTop + 120;
             btnGetFile.Left = centerX;
             btnGetFile.Font = new Font("Segoe UI", 22, FontStyle.Bold);
 
-            // File label
             fileLabel.Top = baseTop + 210;
             fileLabel.Left = centerX;
-            fileLabel.ForeColor = Color.White;
-            fileLabel.Font = new Font("Segoe UI", 16, FontStyle.Regular);
 
-            // File textbox
             textBoxFile.Top = baseTop + 245;
             textBoxFile.Left = centerX;
-            textBoxFile.Font = new Font("Segoe UI", 16, FontStyle.Regular);
+            textBoxFile.Font = new Font("Segoe UI", 16);
 
-            // Print button
             btnPrint.Top = baseTop + 305;
             btnPrint.Left = centerX;
             btnPrint.Font = new Font("Segoe UI", 22, FontStyle.Bold);
 
-            // Status label
             statusLabel.Top = baseTop + 390;
             statusLabel.Left = centerX;
-            statusLabel.ForeColor = Color.White;
-            statusLabel.Font = new Font("Segoe UI", 16, FontStyle.Regular);
+            statusLabel.Font = new Font("Segoe UI", 16);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -132,16 +157,8 @@ namespace AnyPrintConsole
             }
             catch (Exception ex)
             {
-                if (ex.Message == "JOB_NOT_PAID")
-                {
-                    MessageBox.Show("Job not found or not paid yet.");
-                    statusLabel.Text = "Status: Job not paid";
-                }
-                else
-                {
-                    MessageBox.Show("Network error:\n\n" + ex.ToString());
-                    statusLabel.Text = "Status: Network error";
-                }
+                MessageBox.Show("Network error:\n\n" + ex.Message);
+                statusLabel.Text = "Status: Network error";
             }
         }
 
@@ -195,19 +212,12 @@ namespace AnyPrintConsole
                     Arguments = args,
                     CreateNoWindow = true,
                     UseShellExecute = false,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true
+                    RedirectStandardError = true
                 };
 
                 using (Process p = Process.Start(psi))
                 {
                     p.WaitForExit();
-
-                    if (p.ExitCode != 0)
-                    {
-                        string err = p.StandardError.ReadToEnd();
-                        throw new Exception("Ghostscript error: " + err);
-                    }
                 }
             }
         }
