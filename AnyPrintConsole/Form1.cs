@@ -26,16 +26,22 @@ namespace AnyPrintConsole
 
         private void SetupUI()
         {
-            // Window style
+            // Window style (keep X button)
             this.Text = "AnyPrint POS";
             this.WindowState = FormWindowState.Maximized;
-            this.FormBorderStyle = FormBorderStyle.None;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.BackColor = Color.Black;
 
-            // Logo
+            // Logo (next to exe)
             PictureBox logo = new PictureBox();
-            string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Anyprint.png");
-            logo.Image = Image.FromFile(logoPath);
+            string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Anyprint.png");
+
+            if (File.Exists(logoPath))
+            {
+                logo.Image = Image.FromFile(logoPath);
+            }
+
             logo.SizeMode = PictureBoxSizeMode.Zoom;
             logo.Width = 400;
             logo.Height = 140;
