@@ -21,8 +21,8 @@ namespace AnyPrintConsole
 
         public Form1()
         {
-            InitializeComponent();
             this.AutoScaleMode = AutoScaleMode.None; 
+            InitializeComponent();
             SetupUI();
             this.Shown += Form1_Shown;   // wait until fullscreen exists
         }
@@ -86,13 +86,14 @@ namespace AnyPrintConsole
 
         private void ResizeLogo()
         {
-            int maxLogoHeight = 140;   // header height
-            int maxLogoWidth = (int)(this.ClientSize.Width * 0.65);
+            int logoHeight = 260;
+            int logoWidth = (int)(this.ClientSize.Width * 0.8);
 
-            logo.Height = maxLogoHeight;
-            logo.Width = maxLogoWidth;
-
+            logo.Height = logoHeight;
+            logo.Width = logoWidth;
             logo.Left = (this.ClientSize.Width - logo.Width) / 2;
+
+            logo.Refresh();
         }
 
 
