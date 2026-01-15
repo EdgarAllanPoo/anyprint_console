@@ -89,7 +89,7 @@ namespace AnyPrintConsole
             if (logo.Image == null) return;
 
             // Make logo wide and prominent
-            int maxWidth = (int)(this.ClientSize.Width * 0.75);   // 75% of window width
+            int maxWidth = (int)(this.ClientSize.Width * 0.4);   // 75% of window width
 
             // Preserve real image ratio
             float aspectRatio = (float)logo.Image.Height / logo.Image.Width;
