@@ -29,6 +29,9 @@ namespace AnyPrintConsole
 
         private void SetupUI()
         {
+            this.AutoScaleDimensions = new SizeF(96F, 96F);
+            this.AutoScaleMode = AutoScaleMode.None;
+
             // Window style (keep X button)
             this.Text = "AnyPrint POS";
             this.WindowState = FormWindowState.Normal;
@@ -88,58 +91,44 @@ namespace AnyPrintConsole
         {
             if (logo.Image == null) return;
 
-            // Make logo wide and prominent
-            int maxWidth = (int)(this.ClientSize.Width * 0.25);   // 75% of window width
+            int maxWidth = (int)(this.ClientSize.Width * 0.28);  // good POS proportion
 
-            // Preserve real image ratio
             float aspectRatio = (float)logo.Image.Height / logo.Image.Width;
-            int calculatedHeight = (int)(maxWidth * aspectRatio);
+            int height = (int)(maxWidth * aspectRatio);
 
             logo.Width = maxWidth;
-            logo.Height = calculatedHeight;
+            logo.Height = height;
 
-            // Center horizontally and keep tight top spacing
             logo.Left = (this.ClientSize.Width - logo.Width) / 2;
-            logo.Top = 10;
-
-            logo.Refresh();
+            logo.Top = 20;
         }
-
+        
         private void LayoutControls()
         {
-            // Calculate real visible logo bottom (not PictureBox bottom)
-            int visibleLogoHeight = logo.Height;
-            int baseTop = logo.Top + visibleLogoHeight + 10;   // tight spacing under logo
-
+            int baseTop = logo.Bottom + 5;   // very tight header spacing
             int centerX = (this.ClientSize.Width - textBoxCode.Width) / 2;
 
             codeLabel.Top = baseTop;
             codeLabel.Left = centerX;
 
-            textBoxCode.Top = baseTop + 32;
+            textBoxCode.Top = codeLabel.Bottom + 10;
             textBoxCode.Left = centerX;
-            textBoxCode.Font = new Font("Segoe UI", 24, FontStyle.Bold);
 
-            btnGetFile.Top = baseTop + 95;
+            btnGetFile.Top = textBoxCode.Bottom + 15;
             btnGetFile.Left = centerX;
-            btnGetFile.Font = new Font("Segoe UI", 20, FontStyle.Bold);
 
-            fileLabel.Top = baseTop + 170;
+            fileLabel.Top = btnGetFile.Bottom + 20;
             fileLabel.Left = centerX;
 
-            textBoxFile.Top = baseTop + 200;
+            textBoxFile.Top = fileLabel.Bottom + 8;
             textBoxFile.Left = centerX;
-            textBoxFile.Font = new Font("Segoe UI", 14);
 
-            btnPrint.Top = baseTop + 250;
+            btnPrint.Top = textBoxFile.Bottom + 20;
             btnPrint.Left = centerX;
-            btnPrint.Font = new Font("Segoe UI", 20, FontStyle.Bold);
 
-            statusLabel.Top = baseTop + 315;
+            statusLabel.Top = btnPrint.Bottom + 15;
             statusLabel.Left = centerX;
-            statusLabel.Font = new Font("Segoe UI", 14);
         }
-
 
         private void button1_Click(object sender, EventArgs e)
         {
