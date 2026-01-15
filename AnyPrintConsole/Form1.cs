@@ -52,10 +52,18 @@ namespace AnyPrintConsole
                 textBoxFile.Text = job.filename;
                 statusLabel.Text = "Status: Ready to print";
             }
-            catch (WebException)
+            catch (Exception ex)
             {
-                MessageBox.Show("Job not found or not paid yet.");
-                statusLabel.Text = "Status: Job not found";
+                if (ex.Message == "JOB_NOT_PAID")
+                {
+                    MessageBox.Show("Job not found or not paid yet.");
+                    statusLabel.Text = "Status: Job not paid";
+                }
+                else
+                {
+                    MessageBox.Show("Network error. Please check internet connection.");
+                    statusLabel.Text = "Status: Network error";
+                }
             }
             catch (Exception ex)
             {
