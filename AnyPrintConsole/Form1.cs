@@ -49,7 +49,7 @@ namespace AnyPrintConsole
                 logo.Image = Image.FromFile(logoPath);
 
             logo.SizeMode = PictureBoxSizeMode.Zoom;
-            logo.Top = 20;
+            logo.Top = 10;
             logo.Anchor = AnchorStyles.Top;
 
             this.Controls.Add(logo);
@@ -99,7 +99,7 @@ namespace AnyPrintConsole
 
         private void LayoutControls()
         {
-            int baseTop = logo.Bottom + 10;   // tight spacing
+            int baseTop = logo.Bottom + 5;   // tight spacing
             int centerX = (this.ClientSize.Width - textBoxCode.Width) / 2;
 
             codeLabel.Top = baseTop;
