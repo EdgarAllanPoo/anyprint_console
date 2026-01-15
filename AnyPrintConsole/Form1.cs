@@ -24,14 +24,16 @@ namespace AnyPrintConsole
 
         private void button1_Click(object sender, EventArgs e)
         {
-            textBox4.Text = "";
+            statusLabel.Text = "Status: Downloading...";
+            textBoxFile.Text = "";
             ffile = null;
 
-            string code = textBox2.Text.Trim();
+            string code = textBoxCode.Text.Trim();
 
             if (code.Length < 6)
             {
                 MessageBox.Show("Invalid code");
+                statusLabel.Text = "Status: Invalid code";
                 return;
             }
 
@@ -47,18 +49,21 @@ namespace AnyPrintConsole
                 ffile = Path.GetFileName(localFilePath);
                 filePath = localFilePath;
 
-                textBox4.Text = job.filename;
-                textBox4.Select();
+                textBoxFile.Text = job.filename;
+                statusLabel.Text = "Status: Ready to print";
             }
             catch (WebException)
             {
                 MessageBox.Show("Job not found or not paid yet.");
+                statusLabel.Text = "Status: Job not found";
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Failed to download file: " + ex.Message);
+                statusLabel.Text = "Status: Download failed";
             }
         }
+
 
         private void CallKeyboard()
         {
@@ -85,23 +90,36 @@ namespace AnyPrintConsole
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (textBox4.Text != "")
+            if (string.IsNullOrEmpty(ffile))
+            {
+                MessageBox.Show("No file loaded");
+                return;
+            }
+
+            statusLabel.Text = "Status: Printing...";
+
+            try
             {
                 PdfDocument pdf = new PdfDocument();
                 pdf.LoadFromFile(@"C:\AnyPrintFolder\FilesToPrint\" + ffile);
                 pdf.Print();
 
-                textBox2.Text = "";
-                textBox4.Text = "";
+                statusLabel.Text = "Status: Print sent";
 
                 if (File.Exists(filePath))
-                {
                     File.Delete(filePath);
-                }
 
                 ffile = null;
+                textBoxCode.Text = "";
+                textBoxFile.Text = "";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Print failed: " + ex.Message);
+                statusLabel.Text = "Status: Print failed";
             }
         }
+
 
         private void textBox2_Leave(object sender, EventArgs e)
         {
