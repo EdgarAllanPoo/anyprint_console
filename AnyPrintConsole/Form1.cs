@@ -161,7 +161,7 @@ namespace AnyPrintConsole
             {
                 PrintWithGhostscript(filePath, copiesToPrint, printMode);
 
-                statusLabel.Text = $"Status: Print sent ({copiesToPrint} copies, {job.printMode})";
+                statusLabel.Text = $"Status: Print sent ({copiesToPrint} copies, {printMode})";
 
                 if (File.Exists(filePath))
                     File.Delete(filePath);
