@@ -303,3 +303,15 @@ namespace AnyPrintConsole
         }
     }
 }
+
+/*
+"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe" ^
+-dBATCH -dNOPAUSE ^
+-sDEVICE=pdfwrite ^
+-dCompatibilityLevel=1.4 ^
+-dProcessColorModel=/DeviceGray ^
+-sColorConversionStrategy=Gray ^
+-dOverrideICC ^
+-o "C:\AnyPrintFolder\FilesToPrint\bw_test.pdf" ^
+"C:\AnyPrintFolder\FilesToPrint\yourfile.pdf"
+*/
