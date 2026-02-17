@@ -227,10 +227,13 @@ namespace AnyPrintConsole
 
                 using (Process p = Process.Start(convertPsi))
                 {
+                    string error = p.StandardError.ReadToEnd();
                     p.WaitForExit();
 
                     if (p.ExitCode != 0)
-                        throw new Exception("Failed to convert PDF to grayscale.");
+                    {
+                        throw new Exception("GS Convert Error:\n" + error);
+                    }
                 }
 
                 fileToPrint = tempBwPath;
