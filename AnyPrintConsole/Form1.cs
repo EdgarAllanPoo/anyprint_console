@@ -202,7 +202,7 @@ namespace AnyPrintConsole
 
                 if (printMode == "BW")
                 {
-                    colorArgs = "-sColorConversionStrategy=Gray -dProcessColorModel=/DeviceGray ";
+                    colorArgs = "-dMono ";
                 }
 
                 string args =
