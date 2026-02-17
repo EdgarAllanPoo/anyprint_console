@@ -13,6 +13,7 @@ namespace AnyPrintConsole
 
         private string filePath;
         private int copiesToPrint = 1;
+        private string printMode = "BW";
 
         private PictureBox logo;
         private Process onScreenKeyboardProc;
@@ -134,8 +135,9 @@ namespace AnyPrintConsole
 
                 filePath = apiClient.DownloadFile(job.fileUrl, folder);
                 copiesToPrint = job.copies;
+                printMode = string.IsNullOrEmpty(job.printMode) ? "BW" : job.printMode;
 
-                textBoxFile.Text = job.filename + $"  (Copies: {job.copies})";
+                textBoxFile.Text = job.filename + $"  (Copies: {job.copies}, Mode: {job.printMode})";
                 statusLabel.Text = "Status: Ready to print";
             }
             catch (Exception ex)
@@ -157,7 +159,7 @@ namespace AnyPrintConsole
 
             try
             {
-                PrintWithGhostscript(filePath, copiesToPrint);
+                PrintWithGhostscript(filePath, copiesToPrint, printMode);
 
                 statusLabel.Text = $"Status: Print sent ({copiesToPrint} copies)";
 
@@ -186,7 +188,7 @@ namespace AnyPrintConsole
         }
 
 
-        private void PrintWithGhostscript(string pdfPath, int copies)
+        private void PrintWithGhostscript(string pdfPath, int copies, string printMode)
         {
             if (!File.Exists(ghostscriptPath))
                 throw new Exception("Ghostscript not found. Please install Ghostscript.");
@@ -196,9 +198,17 @@ namespace AnyPrintConsole
 
             for (int i = 0; i < copies; i++)
             {
+                string colorArgs = "";
+
+                if (printMode == "BW")
+                {
+                    colorArgs = "-sColorConversionStrategy=Gray -dProcessColorModel=/DeviceGray ";
+                }
+
                 string args =
                     $"-dPrinted -dBATCH -dNOPAUSE -sDEVICE=mswinpr2 " +
-                    $"-sOutputFile=\"%printer%{printerName}\" \"{pdfPath}\"";
+                    $"{colorArgs}" +
+                    $"-sOutputFile=\"%printer%{printerName}\" \"{pdfPath}\"";                
 
                 ProcessStartInfo psi = new ProcessStartInfo
                 {

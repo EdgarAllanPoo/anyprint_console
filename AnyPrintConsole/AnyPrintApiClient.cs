@@ -12,6 +12,7 @@ namespace AnyPrintConsole
         public string fileUrl { get; set; }
         public int copies { get; set; }
         public int pages { get; set; }
+        public string printMode { get; set; }
     }
 
     public class AnyPrintApiClient
