@@ -210,10 +210,11 @@ namespace AnyPrintConsole
                 string convertArgs =
                     "-dBATCH -dNOPAUSE " +
                     "-sDEVICE=pdfwrite " +
+                    "-dCompatibilityLevel=1.4 " +
                     "-dProcessColorModel=/DeviceGray " +
                     "-sColorConversionStrategy=Gray " +
                     "-dOverrideICC " +
-                    $"-sOutputFile=\"{tempBwPath}\" " +
+                    $"-o \"{tempBwPath}\" " +
                     $"\"{pdfPath}\"";
 
                 ProcessStartInfo convertPsi = new ProcessStartInfo
