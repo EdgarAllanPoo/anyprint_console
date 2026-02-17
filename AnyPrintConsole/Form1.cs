@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing.Printing;
+using System.Linq;
 
 namespace AnyPrintConsole
 {
@@ -187,69 +188,33 @@ namespace AnyPrintConsole
             HideKeyboard();
         }
 
-
         private void PrintWithGhostscript(string pdfPath, int copies, string printMode)
         {
             if (!File.Exists(ghostscriptPath))
                 throw new Exception("Ghostscript not found. Please install Ghostscript.");
 
-            PrinterSettings printerSettings = new PrinterSettings();
-            string printerName = printerSettings.PrinterName;
+            // ✅ Select logical printer based on print mode
+            string printerName = printMode == "BW"
+                ? "Anyprint BW"
+                : "Anyprint Color";
 
-            string fileToPrint = pdfPath;
-            string tempBwPath = null;
+            // ✅ Safety check (prevents silent failure)
+            bool printerExists = PrinterSettings.InstalledPrinters
+                .Cast<string>()
+                .Any(p => p == printerName);
 
-            // ✅ Step 1: If BW → convert to grayscale PDF first
-            if (printMode == "BW")
-            {
-                tempBwPath = Path.Combine(
-                    Path.GetDirectoryName(pdfPath),
-                    "bw_" + Path.GetFileName(pdfPath)
-                );
+            if (!printerExists)
+                throw new Exception($"Printer '{printerName}' not found.");
 
-                string convertArgs =
-                    "-dBATCH -dNOPAUSE " +
-                    "-sDEVICE=pdfwrite " +
-                    "-dCompatibilityLevel=1.4 " +
-                    "-dProcessColorModel=/DeviceGray " +
-                    "-sColorConversionStrategy=Gray " +
-                    "-dOverrideICC " +
-                    $"-o \"{tempBwPath}\" " +
-                    $"\"{pdfPath}\"";
-
-                ProcessStartInfo convertPsi = new ProcessStartInfo
-                {
-                    FileName = ghostscriptPath,
-                    Arguments = convertArgs,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardError = true
-                };
-
-                using (Process p = Process.Start(convertPsi))
-                {
-                    string error = p.StandardError.ReadToEnd();
-                    p.WaitForExit();
-
-                    if (p.ExitCode != 0)
-                    {
-                        throw new Exception("GS Convert Error:\n" + error);
-                    }
-                }
-
-                fileToPrint = tempBwPath;
-            }
-
-            // ✅ Step 2: Print (color or already converted grayscale)
             for (int i = 0; i < copies; i++)
             {
                 string printArgs =
                     "-dPrinted -dBATCH -dNOPAUSE " +
                     "-sDEVICE=mswinpr2 " +
                     $"-sOutputFile=\"%printer%{printerName}\" " +
-                    $"\"{fileToPrint}\"";
+                    $"\"{pdfPath}\"";
 
-                ProcessStartInfo printPsi = new ProcessStartInfo
+                ProcessStartInfo psi = new ProcessStartInfo
                 {
                     FileName = ghostscriptPath,
                     Arguments = printArgs,
@@ -258,19 +223,14 @@ namespace AnyPrintConsole
                     RedirectStandardError = true
                 };
 
-                using (Process p = Process.Start(printPsi))
+                using (Process p = Process.Start(psi))
                 {
+                    string error = p.StandardError.ReadToEnd();
                     p.WaitForExit();
 
                     if (p.ExitCode != 0)
-                        throw new Exception("Printing failed.");
+                        throw new Exception("Printing failed:\n" + error);
                 }
-            }
-
-            // ✅ Step 3: Cleanup grayscale temp file
-            if (!string.IsNullOrEmpty(tempBwPath) && File.Exists(tempBwPath))
-            {
-                File.Delete(tempBwPath);
             }
         }
 
@@ -303,15 +263,3 @@ namespace AnyPrintConsole
         }
     }
 }
-
-/*
-"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe" ^
--dBATCH -dNOPAUSE ^
--sDEVICE=pdfwrite ^
--dCompatibilityLevel=1.4 ^
--dProcessColorModel=/DeviceGray ^
--sColorConversionStrategy=Gray ^
--dOverrideICC ^
--o "C:\AnyPrintFolder\FilesToPrint\bw_test.pdf" ^
-"C:\AnyPrintFolder\FilesToPrint\yourfile.pdf"
-*/
