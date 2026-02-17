@@ -196,33 +196,77 @@ namespace AnyPrintConsole
             PrinterSettings printerSettings = new PrinterSettings();
             string printerName = printerSettings.PrinterName;
 
-            for (int i = 0; i < copies; i++)
+            string fileToPrint = pdfPath;
+            string tempBwPath = null;
+
+            // ✅ Step 1: If BW → convert to grayscale PDF first
+            if (printMode == "BW")
             {
-                string colorArgs = "";
+                tempBwPath = Path.Combine(
+                    Path.GetDirectoryName(pdfPath),
+                    "bw_" + Path.GetFileName(pdfPath)
+                );
 
-                if (printMode == "BW")
-                {
-                    colorArgs = "-dBlackText -dBlackVector ";
-                }
+                string convertArgs =
+                    "-dBATCH -dNOPAUSE " +
+                    "-sDEVICE=pdfwrite " +
+                    "-dProcessColorModel=/DeviceGray " +
+                    "-sColorConversionStrategy=Gray " +
+                    "-dOverrideICC " +
+                    $"-sOutputFile=\"{tempBwPath}\" " +
+                    $"\"{pdfPath}\"";
 
-                string args =
-                    $"-dPrinted -dBATCH -dNOPAUSE -sDEVICE=mswinpr2 " +
-                    $"{colorArgs}" +
-                    $"-sOutputFile=\"%printer%{printerName}\" \"{pdfPath}\"";                
-
-                ProcessStartInfo psi = new ProcessStartInfo
+                ProcessStartInfo convertPsi = new ProcessStartInfo
                 {
                     FileName = ghostscriptPath,
-                    Arguments = args,
+                    Arguments = convertArgs,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardError = true
                 };
 
-                using (Process p = Process.Start(psi))
+                using (Process p = Process.Start(convertPsi))
                 {
                     p.WaitForExit();
+
+                    if (p.ExitCode != 0)
+                        throw new Exception("Failed to convert PDF to grayscale.");
                 }
+
+                fileToPrint = tempBwPath;
+            }
+
+            // ✅ Step 2: Print (color or already converted grayscale)
+            for (int i = 0; i < copies; i++)
+            {
+                string printArgs =
+                    "-dPrinted -dBATCH -dNOPAUSE " +
+                    "-sDEVICE=mswinpr2 " +
+                    $"-sOutputFile=\"%printer%{printerName}\" " +
+                    $"\"{fileToPrint}\"";
+
+                ProcessStartInfo printPsi = new ProcessStartInfo
+                {
+                    FileName = ghostscriptPath,
+                    Arguments = printArgs,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardError = true
+                };
+
+                using (Process p = Process.Start(printPsi))
+                {
+                    p.WaitForExit();
+
+                    if (p.ExitCode != 0)
+                        throw new Exception("Printing failed.");
+                }
+            }
+
+            // ✅ Step 3: Cleanup grayscale temp file
+            if (!string.IsNullOrEmpty(tempBwPath) && File.Exists(tempBwPath))
+            {
+                File.Delete(tempBwPath);
             }
         }
 
