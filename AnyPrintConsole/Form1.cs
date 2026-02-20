@@ -92,7 +92,7 @@ namespace AnyPrintConsole
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 8f));
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 12f));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 5f));
 
@@ -115,8 +115,8 @@ namespace AnyPrintConsole
             // ===== FONTS =====
             codeLabel.Font = new Font("Segoe UI", 24F);
             textBoxCode.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            fileLabel.Font = new Font("Segoe UI", 22F);
-            textBoxFile.Font = new Font("Segoe UI", 20F);
+            fileLabel.Font = new Font("Segoe UI", 24F);
+            textBoxFile.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             statusLabel.Font = new Font("Segoe UI", 16F);
 
             textBoxCode.TextAlign = HorizontalAlignment.Center;
