@@ -187,6 +187,7 @@ namespace AnyPrintConsole
             gradientPrint.Click += button2_Click;
 
             // ===== ADD CONTROLS =====
+            layout.Controls.Add(logo, 0, 0);
             layout.Controls.Add(WrapLabel(codeLabel), 0, 1);
             layout.Controls.Add(WrapControl(textBoxCode), 0, 2);
             layout.Controls.Add(WrapControl(gradientGet), 0, 3);
