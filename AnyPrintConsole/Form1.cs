@@ -26,136 +26,145 @@ namespace AnyPrintConsole
             SetupUI();
         }
 
-        private void SetupUI()
+    private void SetupUI()
+    {
+        // ===== FORM STYLE =====
+        this.Text = "";
+        this.FormBorderStyle = FormBorderStyle.None;
+        this.WindowState = FormWindowState.Maximized;
+        this.BackColor = Color.Black;
+        this.KeyPreview = true;
+
+        this.KeyDown += (s, e) =>
         {
-            // ===== FORM STYLE =====
-            this.Text = "";
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.WindowState = FormWindowState.Maximized;
-            this.BackColor = Color.Black;
-            this.KeyPreview = true;
+            if (e.KeyCode == Keys.Escape)
+                this.Close();
+        };
 
-            this.KeyDown += (s, e) =>
-            {
-                if (e.KeyCode == Keys.Escape)
-                    this.Close();
-            };
+        // ===== BACKGROUND =====
+        string bgPath = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "background.png");
 
-            // ===== BACKGROUND =====
-            string bgPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "background.png");
+        if (File.Exists(bgPath))
+        {
+            this.BackgroundImage = Image.FromFile(bgPath);
+            this.BackgroundImageLayout = ImageLayout.Stretch;
+        }
 
-            if (File.Exists(bgPath))
-            {
-                this.BackgroundImage = Image.FromFile(bgPath);
-                this.BackgroundImageLayout = ImageLayout.Stretch;
-            }
+        // Hide old designer controls
+        titleLabel.Visible = false;
+        btnGetFile.Visible = false;
+        btnPrint.Visible = false;
 
-            // Hide old designer buttons/title
-            titleLabel.Visible = false;
-            btnGetFile.Visible = false;
-            btnPrint.Visible = false;
+        codeLabel.ForeColor = Color.White;
+        fileLabel.ForeColor = Color.White;
+        statusLabel.ForeColor = Color.White;
 
-            codeLabel.ForeColor = Color.White;
-            fileLabel.ForeColor = Color.White;
-            statusLabel.ForeColor = Color.White;
+        // ===== MAIN CENTER PANEL =====
+        Panel mainPanel = new Panel();
+        mainPanel.Size = new Size(750, 650);
+        mainPanel.BackColor = Color.Transparent;
+        mainPanel.Anchor = AnchorStyles.None;
 
-            // ===== MAIN CENTER PANEL =====
-            Panel mainPanel = new Panel();
-            mainPanel.Size = new Size(750, 600);
-            mainPanel.BackColor = Color.Transparent;
-            mainPanel.Anchor = AnchorStyles.None;
+        this.Controls.Add(mainPanel);
 
-            this.Controls.Add(mainPanel);
-
-            this.Resize += (s, e) =>
-            {
-                mainPanel.Left = (this.ClientSize.Width - mainPanel.Width) / 2;
-                mainPanel.Top = (this.ClientSize.Height - mainPanel.Height) / 2;
-            };
-
+        this.Resize += (s, e) =>
+        {
             mainPanel.Left = (this.ClientSize.Width - mainPanel.Width) / 2;
             mainPanel.Top = (this.ClientSize.Height - mainPanel.Height) / 2;
+        };
 
-            // ===== TABLE LAYOUT =====
-            TableLayoutPanel layout = new TableLayoutPanel();
-            layout.Dock = DockStyle.Fill;
-            layout.ColumnCount = 1;
-            layout.RowCount = 8;
-            layout.BackColor = Color.Transparent;
-            layout.Padding = new Padding(20);
+        mainPanel.Left = (this.ClientSize.Width - mainPanel.Width) / 2;
+        mainPanel.Top = (this.ClientSize.Height - mainPanel.Height) / 2;
 
-            for (int i = 0; i < 8; i++)
-                layout.RowStyles.Add(new RowStyle(SizeType.Percent, 12.5f));
+        // ===== TABLE LAYOUT =====
+        TableLayoutPanel layout = new TableLayoutPanel();
+        layout.Dock = DockStyle.Fill;
+        layout.ColumnCount = 1;
+        layout.RowCount = 8;
+        layout.BackColor = Color.Transparent;
+        layout.Padding = new Padding(20);
+        layout.RowStyles.Clear();
 
-            mainPanel.Controls.Add(layout);
+        // Better row proportions
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 20f)); // Logo
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 10f)); // Label
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f)); // Code box
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f)); // Get button
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 10f)); // File label
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 10f)); // File box
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f)); // Print button
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 5f));  // Status
 
-            // ===== LOGO =====
-            PictureBox logo = new PictureBox();
-            logo.Height = 120;
-            logo.Dock = DockStyle.Fill;
-            logo.SizeMode = PictureBoxSizeMode.Zoom;
-            logo.BackColor = Color.Transparent;
-            logo.Margin = new Padding(0, 0, 0, 20);
+        mainPanel.Controls.Add(layout);
 
-            string logoPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "logo.png");
+        // ===== LOGO =====
+        PictureBox logo = new PictureBox();
+        logo.Dock = DockStyle.Fill;
+        logo.SizeMode = PictureBoxSizeMode.Zoom;
+        logo.BackColor = Color.Transparent;
+        logo.Margin = new Padding(0, 0, 0, 15);
 
-            if (File.Exists(logoPath))
-                logo.Image = Image.FromFile(logoPath);
+        string logoPath = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "logo.png");
 
-            // ===== FONTS =====
-            codeLabel.Font = new Font("Segoe UI", 22F);
-            textBoxCode.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
-            fileLabel.Font = new Font("Segoe UI", 20F);
-            textBoxFile.Font = new Font("Segoe UI", 16F);
-            statusLabel.Font = new Font("Segoe UI", 16F);
+        if (File.Exists(logoPath))
+            logo.Image = Image.FromFile(logoPath);
 
-            textBoxCode.Width = 650;
-            textBoxFile.Width = 650;
-            textBoxCode.TextAlign = HorizontalAlignment.Center;
+        // ===== FONTS =====
+        codeLabel.Font = new Font("Segoe UI", 22F);
+        textBoxCode.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
+        fileLabel.Font = new Font("Segoe UI", 20F);
+        textBoxFile.Font = new Font("Segoe UI", 16F);
+        statusLabel.Font = new Font("Segoe UI", 16F);
 
-            // ===== GRADIENT BUTTONS =====
-            GradientButton gradientGet = new GradientButton
-            {
-                Text = "GET FILE",
-                Height = 70,
-                Width = 650,
-                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
-                ForeColor = Color.White,
-                Color1 = Color.FromArgb(255, 120, 80),
-                Color2 = Color.FromArgb(30, 60, 120)
-            };
-            gradientGet.Click += button1_Click;
+        textBoxCode.Width = 650;
+        textBoxFile.Width = 650;
+        textBoxCode.TextAlign = HorizontalAlignment.Center;
 
-            GradientButton gradientPrint = new GradientButton
-            {
-                Text = "PRINT",
-                Height = 70,
-                Width = 650,
-                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
-                ForeColor = Color.White,
-                Color1 = Color.FromArgb(255, 120, 80),
-                Color2 = Color.FromArgb(30, 60, 120)
-            };
-            gradientPrint.Click += button2_Click;
+        // ===== GRADIENT BUTTONS =====
+        GradientButton gradientGet = new GradientButton
+        {
+            Text = "GET FILE",
+            Dock = DockStyle.Fill,
+            Height = 70,
+            Font = new Font("Segoe UI", 20F, FontStyle.Bold),
+            ForeColor = Color.White,
+            Color1 = Color.FromArgb(255, 120, 80),
+            Color2 = Color.FromArgb(30, 60, 120),
+            Margin = new Padding(0, 5, 0, 5)
+        };
+        gradientGet.Click += button1_Click;
 
-            // ===== ADD CONTROLS IN ORDER =====
-            layout.Controls.Add(logo);
-            layout.Controls.Add(codeLabel);
-            layout.Controls.Add(textBoxCode);
-            layout.Controls.Add(gradientGet);
-            layout.Controls.Add(fileLabel);
-            layout.Controls.Add(textBoxFile);
-            layout.Controls.Add(gradientPrint);
-            layout.Controls.Add(statusLabel);
+        GradientButton gradientPrint = new GradientButton
+        {
+            Text = "PRINT",
+            Dock = DockStyle.Fill,
+            Height = 70,
+            Font = new Font("Segoe UI", 20F, FontStyle.Bold),
+            ForeColor = Color.White,
+            Color1 = Color.FromArgb(255, 120, 80),
+            Color2 = Color.FromArgb(30, 60, 120),
+            Margin = new Padding(0, 5, 0, 5)
+        };
+        gradientPrint.Click += button2_Click;
 
-            // ===== KEYBOARD EVENTS =====
-            textBoxCode.Enter += TextBoxCode_Enter;
-            textBoxCode.Leave += TextBoxCode_Leave;
-        }
+        // ===== ADD CONTROLS =====
+        layout.Controls.Add(logo, 0, 0);
+        layout.Controls.Add(codeLabel, 0, 1);
+        layout.Controls.Add(textBoxCode, 0, 2);
+        layout.Controls.Add(gradientGet, 0, 3);
+        layout.Controls.Add(fileLabel, 0, 4);
+        layout.Controls.Add(textBoxFile, 0, 5);
+        layout.Controls.Add(gradientPrint, 0, 6);
+        layout.Controls.Add(statusLabel, 0, 7);
+
+        // ===== KEYBOARD EVENTS =====
+        textBoxCode.Enter += TextBoxCode_Enter;
+        textBoxCode.Leave += TextBoxCode_Leave;
+    }
 
         // ================= ORIGINAL LOGIC BELOW =================
 
