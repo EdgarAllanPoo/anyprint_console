@@ -30,17 +30,18 @@ namespace AnyPrintConsole
         {
             // ===== FORM STYLE =====
             this.Text = "";
-            this.FormBorderStyle = FormBorderStyle.None; // kiosk style
+            this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
             this.BackColor = Color.Black;
             this.KeyPreview = true;
+
             this.KeyDown += (s, e) =>
             {
                 if (e.KeyCode == Keys.Escape)
-                    this.Close(); // allow ESC to exit
+                    this.Close();
             };
 
-            // ===== BACKGROUND IMAGE =====
+            // ===== BACKGROUND =====
             string bgPath = Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
                 "background.png");
@@ -51,7 +52,7 @@ namespace AnyPrintConsole
                 this.BackgroundImageLayout = ImageLayout.Stretch;
             }
 
-            // Hide old designer controls
+            // Hide old designer buttons/title
             titleLabel.Visible = false;
             btnGetFile.Visible = false;
             btnPrint.Visible = false;
@@ -62,7 +63,7 @@ namespace AnyPrintConsole
 
             // ===== MAIN CENTER PANEL =====
             Panel mainPanel = new Panel();
-            mainPanel.Size = new Size(750, 550);
+            mainPanel.Size = new Size(750, 600);
             mainPanel.BackColor = Color.Transparent;
             mainPanel.Anchor = AnchorStyles.None;
 
@@ -74,7 +75,6 @@ namespace AnyPrintConsole
                 mainPanel.Top = (this.ClientSize.Height - mainPanel.Height) / 2;
             };
 
-            // Trigger initial center
             mainPanel.Left = (this.ClientSize.Width - mainPanel.Width) / 2;
             mainPanel.Top = (this.ClientSize.Height - mainPanel.Height) / 2;
 
@@ -82,15 +82,29 @@ namespace AnyPrintConsole
             TableLayoutPanel layout = new TableLayoutPanel();
             layout.Dock = DockStyle.Fill;
             layout.ColumnCount = 1;
-            layout.RowCount = 7;
+            layout.RowCount = 8;
             layout.BackColor = Color.Transparent;
             layout.Padding = new Padding(20);
 
-            for (int i = 0; i < 7; i++)
-                layout.RowStyles.Add(
-                    new RowStyle(SizeType.Percent, 14f));
+            for (int i = 0; i < 8; i++)
+                layout.RowStyles.Add(new RowStyle(SizeType.Percent, 12.5f));
 
             mainPanel.Controls.Add(layout);
+
+            // ===== LOGO =====
+            PictureBox logo = new PictureBox();
+            logo.Height = 120;
+            logo.Dock = DockStyle.Fill;
+            logo.SizeMode = PictureBoxSizeMode.Zoom;
+            logo.BackColor = Color.Transparent;
+            logo.Margin = new Padding(0, 0, 0, 20);
+
+            string logoPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "logo.png");
+
+            if (File.Exists(logoPath))
+                logo.Image = Image.FromFile(logoPath);
 
             // ===== FONTS =====
             codeLabel.Font = new Font("Segoe UI", 22F);
@@ -128,7 +142,8 @@ namespace AnyPrintConsole
             };
             gradientPrint.Click += button2_Click;
 
-            // ===== ADD TO LAYOUT =====
+            // ===== ADD CONTROLS IN ORDER =====
+            layout.Controls.Add(logo);
             layout.Controls.Add(codeLabel);
             layout.Controls.Add(textBoxCode);
             layout.Controls.Add(gradientGet);
@@ -142,9 +157,7 @@ namespace AnyPrintConsole
             textBoxCode.Leave += TextBoxCode_Leave;
         }
 
-        // =====================================================
-        // ================== YOUR ORIGINAL LOGIC ==============
-        // =====================================================
+        // ================= ORIGINAL LOGIC BELOW =================
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -285,8 +298,7 @@ namespace AnyPrintConsole
         {
             try
             {
-                foreach (var proc in
-                    Process.GetProcessesByName("TabTip"))
+                foreach (var proc in Process.GetProcessesByName("TabTip"))
                     proc.Kill();
 
                 string tabTipPath =
@@ -303,8 +315,7 @@ namespace AnyPrintConsole
         {
             try
             {
-                foreach (var proc in
-                    Process.GetProcessesByName("TabTip"))
+                foreach (var proc in Process.GetProcessesByName("TabTip"))
                     proc.Kill();
             }
             catch { }
