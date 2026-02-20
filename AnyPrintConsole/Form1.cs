@@ -121,53 +121,66 @@ namespace AnyPrintConsole
 
             textBoxCode.TextAlign = HorizontalAlignment.Center;
 
-            // ===== UNIFORM MARGIN FOR ALL MAIN CONTROLS =====
-            Padding uniformMargin = new Padding(40, 8, 40, 8);
+            // ===== FIXED WIDTH WRAPPER FUNCTION =====
+            int controlWidth = 650;
 
-            textBoxCode.Dock = DockStyle.Fill;
-            textBoxFile.Dock = DockStyle.Fill;
-            textBoxCode.Margin = uniformMargin;
-            textBoxFile.Margin = uniformMargin;
+            Panel WrapControl(Control ctrl)
+            {
+                Panel wrapper = new Panel();
+                wrapper.Dock = DockStyle.Fill;
+                wrapper.BackColor = Color.Transparent;
+
+                ctrl.Width = controlWidth;
+                ctrl.Anchor = AnchorStyles.None;
+
+                wrapper.Resize += (s, e) =>
+                {
+                    ctrl.Left = (wrapper.Width - controlWidth) / 2;
+                    ctrl.Top = (wrapper.Height - ctrl.Height) / 2;
+                };
+
+                wrapper.Controls.Add(ctrl);
+                return wrapper;
+            }
 
             // ===== GRADIENT BUTTONS =====
             GradientButton gradientGet = new GradientButton
             {
                 Text = "GET FILE",
-                Dock = DockStyle.Fill,
+                Height = 70,
                 Font = new Font("Segoe UI", 20F, FontStyle.Bold),
                 ForeColor = Color.White,
                 Color1 = Color.FromArgb(255, 120, 80),
-                Color2 = Color.FromArgb(30, 60, 120),
-                Margin = uniformMargin
+                Color2 = Color.FromArgb(30, 60, 120)
             };
             gradientGet.Click += button1_Click;
 
             GradientButton gradientPrint = new GradientButton
             {
                 Text = "PRINT",
-                Dock = DockStyle.Fill,
+                Height = 70,
                 Font = new Font("Segoe UI", 20F, FontStyle.Bold),
                 ForeColor = Color.White,
                 Color1 = Color.FromArgb(255, 120, 80),
-                Color2 = Color.FromArgb(30, 60, 120),
-                Margin = uniformMargin
+                Color2 = Color.FromArgb(30, 60, 120)
             };
             gradientPrint.Click += button2_Click;
 
             // ===== ADD CONTROLS =====
             layout.Controls.Add(logo, 0, 0);
             layout.Controls.Add(codeLabel, 0, 1);
-            layout.Controls.Add(textBoxCode, 0, 2);
-            layout.Controls.Add(gradientGet, 0, 3);
+            layout.Controls.Add(WrapControl(textBoxCode), 0, 2);
+            layout.Controls.Add(WrapControl(gradientGet), 0, 3);
             layout.Controls.Add(fileLabel, 0, 4);
-            layout.Controls.Add(textBoxFile, 0, 5);
-            layout.Controls.Add(gradientPrint, 0, 6);
+            layout.Controls.Add(WrapControl(textBoxFile), 0, 5);
+            layout.Controls.Add(WrapControl(gradientPrint), 0, 6);
             layout.Controls.Add(statusLabel, 0, 7);
 
             // ===== KEYBOARD EVENTS =====
             textBoxCode.Enter += TextBoxCode_Enter;
             textBoxCode.Leave += TextBoxCode_Leave;
         }
+
 
         // ================= ORIGINAL LOGIC BELOW =================
 
