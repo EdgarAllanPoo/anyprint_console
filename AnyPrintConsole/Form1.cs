@@ -52,7 +52,7 @@ namespace AnyPrintConsole
                 this.BackgroundImageLayout = ImageLayout.Stretch;
             }
 
-            // Hide old designer controls
+            // Hide designer buttons
             titleLabel.Visible = false;
             btnGetFile.Visible = false;
             btnPrint.Visible = false;
@@ -63,7 +63,7 @@ namespace AnyPrintConsole
 
             // ===== MAIN CENTER PANEL =====
             Panel mainPanel = new Panel();
-            mainPanel.Size = new Size(900, 700);
+            mainPanel.Size = new Size(1000, 750);
             mainPanel.BackColor = Color.Transparent;
             mainPanel.Anchor = AnchorStyles.None;
 
@@ -84,16 +84,16 @@ namespace AnyPrintConsole
             layout.ColumnCount = 1;
             layout.RowCount = 8;
             layout.BackColor = Color.Transparent;
-            layout.Padding = new Padding(60, 40, 60, 40);
+            layout.Padding = new Padding(40, 30, 40, 30);
             layout.RowStyles.Clear();
 
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 25f)); // Logo
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 10f));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 22f)); // Logo
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 8f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 8f));
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 10f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 12f));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 5f));
 
             mainPanel.Controls.Add(layout);
@@ -103,7 +103,7 @@ namespace AnyPrintConsole
             logo.Dock = DockStyle.Fill;
             logo.SizeMode = PictureBoxSizeMode.Zoom;
             logo.BackColor = Color.Transparent;
-            logo.Margin = new Padding(0, 0, 0, 25);
+            logo.Margin = new Padding(0, 0, 0, 30);
 
             string logoPath = Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
@@ -113,16 +113,16 @@ namespace AnyPrintConsole
                 logo.Image = Image.FromFile(logoPath);
 
             // ===== FONTS =====
-            codeLabel.Font = new Font("Segoe UI", 22F);
-            textBoxCode.Font = new Font("Segoe UI", 26F, FontStyle.Bold);
-            fileLabel.Font = new Font("Segoe UI", 20F);
-            textBoxFile.Font = new Font("Segoe UI", 18F);
-            statusLabel.Font = new Font("Segoe UI", 14F);
+            codeLabel.Font = new Font("Segoe UI", 24F);
+            textBoxCode.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
+            fileLabel.Font = new Font("Segoe UI", 22F);
+            textBoxFile.Font = new Font("Segoe UI", 20F);
+            statusLabel.Font = new Font("Segoe UI", 16F);
 
             textBoxCode.TextAlign = HorizontalAlignment.Center;
 
-            // ===== FIXED WIDTH WRAPPER FUNCTION =====
-            int controlWidth = 650;
+            // ===== FIXED WIDTH WRAPPER =====
+            int controlWidth = 750;
 
             Panel WrapControl(Control ctrl)
             {
@@ -143,12 +143,12 @@ namespace AnyPrintConsole
                 return wrapper;
             }
 
-            // ===== GRADIENT BUTTONS =====
+            // ===== BUTTONS =====
             GradientButton gradientGet = new GradientButton
             {
                 Text = "GET FILE",
-                Height = 70,
-                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
+                Height = 80,
+                Font = new Font("Segoe UI", 22F, FontStyle.Bold),
                 ForeColor = Color.White,
                 Color1 = Color.FromArgb(255, 120, 80),
                 Color2 = Color.FromArgb(30, 60, 120)
@@ -158,8 +158,8 @@ namespace AnyPrintConsole
             GradientButton gradientPrint = new GradientButton
             {
                 Text = "PRINT",
-                Height = 70,
-                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
+                Height = 80,
+                Font = new Font("Segoe UI", 22F, FontStyle.Bold),
                 ForeColor = Color.White,
                 Color1 = Color.FromArgb(255, 120, 80),
                 Color2 = Color.FromArgb(30, 60, 120)
@@ -176,11 +176,9 @@ namespace AnyPrintConsole
             layout.Controls.Add(WrapControl(gradientPrint), 0, 6);
             layout.Controls.Add(statusLabel, 0, 7);
 
-            // ===== KEYBOARD EVENTS =====
             textBoxCode.Enter += TextBoxCode_Enter;
             textBoxCode.Leave += TextBoxCode_Leave;
         }
-
 
         // ================= ORIGINAL LOGIC BELOW =================
 
