@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Drawing.Printing;
-using System.Linq;
 
 namespace AnyPrintConsole
 {
@@ -16,11 +16,9 @@ namespace AnyPrintConsole
         private int copiesToPrint = 1;
         private string printMode = "BW";
 
-        private PictureBox logo;
         private Process onScreenKeyboardProc;
-
-        // Update this path if Ghostscript version changes
-        private readonly string ghostscriptPath = @"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe";
+        private readonly string ghostscriptPath =
+            @"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe";
 
         public Form1()
         {
@@ -30,87 +28,123 @@ namespace AnyPrintConsole
 
         private void SetupUI()
         {
-            // Window style
-            this.Text = "AnyPrint POS";
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Size = new Size(1100, 720);
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = true;
-            this.BackColor = Color.White;
+            // ===== FORM STYLE =====
+            this.Text = "";
+            this.FormBorderStyle = FormBorderStyle.None; // kiosk style
+            this.WindowState = FormWindowState.Maximized;
+            this.BackColor = Color.Black;
+            this.KeyPreview = true;
+            this.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Escape)
+                    this.Close(); // allow ESC to exit
+            };
 
-            // Hide text title — logo replaces it
+            // ===== BACKGROUND IMAGE =====
+            string bgPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "background.png");
+
+            if (File.Exists(bgPath))
+            {
+                this.BackgroundImage = Image.FromFile(bgPath);
+                this.BackgroundImageLayout = ImageLayout.Stretch;
+            }
+
+            // Hide old designer controls
             titleLabel.Visible = false;
+            btnGetFile.Visible = false;
+            btnPrint.Visible = false;
 
-            // Create logo
-            logo = new PictureBox();
-            string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Anyprint.png");
+            codeLabel.ForeColor = Color.White;
+            fileLabel.ForeColor = Color.White;
+            statusLabel.ForeColor = Color.White;
 
-            if (File.Exists(logoPath))
-                logo.Image = Image.FromFile(logoPath);
+            // ===== MAIN CENTER PANEL =====
+            Panel mainPanel = new Panel();
+            mainPanel.Size = new Size(750, 550);
+            mainPanel.BackColor = Color.Transparent;
+            mainPanel.Anchor = AnchorStyles.None;
 
-            logo.SizeMode = PictureBoxSizeMode.Zoom;
-            logo.Width = 500;
-            logo.Height = 140;
-            logo.Left = (this.ClientSize.Width - logo.Width) / 2;
-            logo.Top = 20;
+            this.Controls.Add(mainPanel);
 
-            this.Controls.Add(logo);
+            this.Resize += (s, e) =>
+            {
+                mainPanel.Left = (this.ClientSize.Width - mainPanel.Width) / 2;
+                mainPanel.Top = (this.ClientSize.Height - mainPanel.Height) / 2;
+            };
 
-            // Layout controls
-            LayoutControls();
+            // Trigger initial center
+            mainPanel.Left = (this.ClientSize.Width - mainPanel.Width) / 2;
+            mainPanel.Top = (this.ClientSize.Height - mainPanel.Height) / 2;
 
-            // Keyboard control
+            // ===== TABLE LAYOUT =====
+            TableLayoutPanel layout = new TableLayoutPanel();
+            layout.Dock = DockStyle.Fill;
+            layout.ColumnCount = 1;
+            layout.RowCount = 7;
+            layout.BackColor = Color.Transparent;
+            layout.Padding = new Padding(20);
+
+            for (int i = 0; i < 7; i++)
+                layout.RowStyles.Add(
+                    new RowStyle(SizeType.Percent, 14f));
+
+            mainPanel.Controls.Add(layout);
+
+            // ===== FONTS =====
+            codeLabel.Font = new Font("Segoe UI", 22F);
+            textBoxCode.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
+            fileLabel.Font = new Font("Segoe UI", 20F);
+            textBoxFile.Font = new Font("Segoe UI", 16F);
+            statusLabel.Font = new Font("Segoe UI", 16F);
+
+            textBoxCode.Width = 650;
+            textBoxFile.Width = 650;
+            textBoxCode.TextAlign = HorizontalAlignment.Center;
+
+            // ===== GRADIENT BUTTONS =====
+            GradientButton gradientGet = new GradientButton
+            {
+                Text = "GET FILE",
+                Height = 70,
+                Width = 650,
+                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
+                ForeColor = Color.White,
+                Color1 = Color.FromArgb(255, 120, 80),
+                Color2 = Color.FromArgb(30, 60, 120)
+            };
+            gradientGet.Click += button1_Click;
+
+            GradientButton gradientPrint = new GradientButton
+            {
+                Text = "PRINT",
+                Height = 70,
+                Width = 650,
+                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
+                ForeColor = Color.White,
+                Color1 = Color.FromArgb(255, 120, 80),
+                Color2 = Color.FromArgb(30, 60, 120)
+            };
+            gradientPrint.Click += button2_Click;
+
+            // ===== ADD TO LAYOUT =====
+            layout.Controls.Add(codeLabel);
+            layout.Controls.Add(textBoxCode);
+            layout.Controls.Add(gradientGet);
+            layout.Controls.Add(fileLabel);
+            layout.Controls.Add(textBoxFile);
+            layout.Controls.Add(gradientPrint);
+            layout.Controls.Add(statusLabel);
+
+            // ===== KEYBOARD EVENTS =====
             textBoxCode.Enter += TextBoxCode_Enter;
             textBoxCode.Leave += TextBoxCode_Leave;
-
-            // Colors
-            codeLabel.ForeColor = Color.Black;
-            fileLabel.ForeColor = Color.Black;
-            statusLabel.ForeColor = Color.DimGray;
-
-            // Button styling
-            btnGetFile.BackColor = Color.FromArgb(0, 120, 215);
-            btnGetFile.ForeColor = Color.White;
-            btnGetFile.FlatStyle = FlatStyle.Flat;
-            btnGetFile.FlatAppearance.BorderSize = 0;
-
-            btnPrint.BackColor = Color.FromArgb(0, 180, 120);
-            btnPrint.ForeColor = Color.White;
-            btnPrint.FlatStyle = FlatStyle.Flat;
-            btnPrint.FlatAppearance.BorderSize = 0;
         }
 
-        private void LayoutControls()
-        {
-            int centerX = (this.ClientSize.Width - textBoxCode.Width) / 2;
-            int baseTop = logo.Bottom + 30;
-
-            codeLabel.Left = centerX;
-            codeLabel.Top = baseTop;
-
-            textBoxCode.Left = centerX;
-            textBoxCode.Top = baseTop + 35;
-            textBoxCode.Font = new Font("Segoe UI", 24, FontStyle.Bold);
-
-            btnGetFile.Left = centerX;
-            btnGetFile.Top = baseTop + 100;
-            btnGetFile.Font = new Font("Segoe UI", 20, FontStyle.Bold);
-
-            fileLabel.Left = centerX;
-            fileLabel.Top = baseTop + 180;
-
-            textBoxFile.Left = centerX;
-            textBoxFile.Top = baseTop + 210;
-            textBoxFile.Font = new Font("Segoe UI", 14);
-
-            btnPrint.Left = centerX;
-            btnPrint.Top = baseTop + 265;
-            btnPrint.Font = new Font("Segoe UI", 20, FontStyle.Bold);
-
-            statusLabel.Left = centerX;
-            statusLabel.Top = baseTop + 330;
-            statusLabel.Font = new Font("Segoe UI", 14);
-        }
+        // =====================================================
+        // ================== YOUR ORIGINAL LOGIC ==============
+        // =====================================================
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -136,9 +170,14 @@ namespace AnyPrintConsole
 
                 filePath = apiClient.DownloadFile(job.fileUrl, folder);
                 copiesToPrint = job.copies;
-                printMode = string.IsNullOrEmpty(job.printMode) ? "BW" : job.printMode;
+                printMode = string.IsNullOrEmpty(job.printMode)
+                    ? "BW"
+                    : job.printMode;
 
-                textBoxFile.Text = job.filename + $"  (Copies: {job.copies}, Mode: {job.printMode})";
+                textBoxFile.Text =
+                    job.filename +
+                    $"  (Copies: {job.copies}, Mode: {job.printMode})";
+
                 statusLabel.Text = "Status: Ready to print";
             }
             catch (Exception ex)
@@ -156,13 +195,17 @@ namespace AnyPrintConsole
                 return;
             }
 
-            statusLabel.Text = $"Status: Printing {copiesToPrint} copies...";
+            statusLabel.Text =
+                $"Status: Printing {copiesToPrint} copies...";
 
             try
             {
-                PrintWithGhostscript(filePath, copiesToPrint, printMode);
+                PrintWithGhostscript(filePath,
+                    copiesToPrint,
+                    printMode);
 
-                statusLabel.Text = $"Status: Print sent ({copiesToPrint} copies, {printMode})";
+                statusLabel.Text =
+                    $"Status: Print sent ({copiesToPrint} copies, {printMode})";
 
                 if (File.Exists(filePath))
                     File.Delete(filePath);
@@ -178,33 +221,26 @@ namespace AnyPrintConsole
             }
         }
 
-        private void TextBoxCode_Enter(object sender, EventArgs e)
-        {
-            ShowKeyboard();
-        }
-
-        private void TextBoxCode_Leave(object sender, EventArgs e)
-        {
-            HideKeyboard();
-        }
-
-        private void PrintWithGhostscript(string pdfPath, int copies, string printMode)
+        private void PrintWithGhostscript(string pdfPath,
+            int copies,
+            string printMode)
         {
             if (!File.Exists(ghostscriptPath))
-                throw new Exception("Ghostscript not found. Please install Ghostscript.");
+                throw new Exception("Ghostscript not found.");
 
-            // ✅ Select logical printer based on print mode
-            string printerName = printMode == "BW"
+            string printerName =
+                printMode == "BW"
                 ? "Anyprint BW"
                 : "Anyprint Color";
 
-            // ✅ Safety check (prevents silent failure)
-            bool printerExists = PrinterSettings.InstalledPrinters
+            bool printerExists =
+                PrinterSettings.InstalledPrinters
                 .Cast<string>()
                 .Any(p => p == printerName);
 
             if (!printerExists)
-                throw new Exception($"Printer '{printerName}' not found.");
+                throw new Exception(
+                    $"Printer '{printerName}' not found.");
 
             for (int i = 0; i < copies; i++)
             {
@@ -225,29 +261,40 @@ namespace AnyPrintConsole
 
                 using (Process p = Process.Start(psi))
                 {
-                    string error = p.StandardError.ReadToEnd();
+                    string error =
+                        p.StandardError.ReadToEnd();
                     p.WaitForExit();
 
                     if (p.ExitCode != 0)
-                        throw new Exception("Printing failed:\n" + error);
+                        throw new Exception(error);
                 }
             }
+        }
+
+        private void TextBoxCode_Enter(object sender, EventArgs e)
+        {
+            ShowKeyboard();
+        }
+
+        private void TextBoxCode_Leave(object sender, EventArgs e)
+        {
+            HideKeyboard();
         }
 
         private void ShowKeyboard()
         {
             try
             {
-                // Kill existing keyboard if already open
-                foreach (var proc in Process.GetProcessesByName("TabTip"))
+                foreach (var proc in
+                    Process.GetProcessesByName("TabTip"))
                     proc.Kill();
 
-                string tabTipPath = @"C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe";
+                string tabTipPath =
+                    @"C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe";
 
                 if (File.Exists(tabTipPath))
-                {
-                    onScreenKeyboardProc = Process.Start(tabTipPath);
-                }
+                    onScreenKeyboardProc =
+                        Process.Start(tabTipPath);
             }
             catch { }
         }
@@ -256,7 +303,8 @@ namespace AnyPrintConsole
         {
             try
             {
-                foreach (var proc in Process.GetProcessesByName("TabTip"))
+                foreach (var proc in
+                    Process.GetProcessesByName("TabTip"))
                     proc.Kill();
             }
             catch { }
