@@ -84,10 +84,9 @@ namespace AnyPrintConsole
             layout.ColumnCount = 1;
             layout.RowCount = 8;
             layout.BackColor = Color.Transparent;
-            layout.Padding = new Padding(40);
+            layout.Padding = new Padding(60, 40, 60, 40);
             layout.RowStyles.Clear();
 
-            // Larger logo row
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 25f)); // Logo
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 10f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
@@ -104,7 +103,7 @@ namespace AnyPrintConsole
             logo.Dock = DockStyle.Fill;
             logo.SizeMode = PictureBoxSizeMode.Zoom;
             logo.BackColor = Color.Transparent;
-            logo.Margin = new Padding(0, 0, 0, 20);
+            logo.Margin = new Padding(0, 0, 0, 25);
 
             string logoPath = Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
@@ -117,12 +116,18 @@ namespace AnyPrintConsole
             codeLabel.Font = new Font("Segoe UI", 22F);
             textBoxCode.Font = new Font("Segoe UI", 26F, FontStyle.Bold);
             fileLabel.Font = new Font("Segoe UI", 20F);
-            textBoxFile.Font = new Font("Segoe UI", 16F);
+            textBoxFile.Font = new Font("Segoe UI", 18F);
             statusLabel.Font = new Font("Segoe UI", 14F);
+
+            textBoxCode.TextAlign = HorizontalAlignment.Center;
+
+            // ===== UNIFORM MARGIN FOR ALL MAIN CONTROLS =====
+            Padding uniformMargin = new Padding(40, 8, 40, 8);
 
             textBoxCode.Dock = DockStyle.Fill;
             textBoxFile.Dock = DockStyle.Fill;
-            textBoxCode.TextAlign = HorizontalAlignment.Center;
+            textBoxCode.Margin = uniformMargin;
+            textBoxFile.Margin = uniformMargin;
 
             // ===== GRADIENT BUTTONS =====
             GradientButton gradientGet = new GradientButton
@@ -133,7 +138,7 @@ namespace AnyPrintConsole
                 ForeColor = Color.White,
                 Color1 = Color.FromArgb(255, 120, 80),
                 Color2 = Color.FromArgb(30, 60, 120),
-                Margin = new Padding(0, 8, 0, 8)
+                Margin = uniformMargin
             };
             gradientGet.Click += button1_Click;
 
@@ -145,7 +150,7 @@ namespace AnyPrintConsole
                 ForeColor = Color.White,
                 Color1 = Color.FromArgb(255, 120, 80),
                 Color2 = Color.FromArgb(30, 60, 120),
-                Margin = new Padding(0, 8, 0, 8)
+                Margin = uniformMargin
             };
             gradientPrint.Click += button2_Click;
 
