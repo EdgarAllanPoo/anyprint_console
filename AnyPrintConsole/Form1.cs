@@ -143,6 +143,26 @@ namespace AnyPrintConsole
                 return wrapper;
             }
 
+            Panel WrapLabel(Control ctrl)
+            {
+                Panel wrapper = new Panel();
+                wrapper.Dock = DockStyle.Fill;
+                wrapper.BackColor = Color.Transparent;
+
+                ctrl.Width = controlWidth;
+                ctrl.TextAlign = ContentAlignment.MiddleLeft;
+                ctrl.Anchor = AnchorStyles.None;
+
+                wrapper.Resize += (s, e) =>
+                {
+                    ctrl.Left = (wrapper.Width - controlWidth) / 2;
+                    ctrl.Top = (wrapper.Height - ctrl.Height) / 2;
+                };
+
+                wrapper.Controls.Add(ctrl);
+                return wrapper;
+            }
+
             // ===== BUTTONS =====
             GradientButton gradientGet = new GradientButton
             {
@@ -167,14 +187,13 @@ namespace AnyPrintConsole
             gradientPrint.Click += button2_Click;
 
             // ===== ADD CONTROLS =====
-            layout.Controls.Add(logo, 0, 0);
-            layout.Controls.Add(codeLabel, 0, 1);
+            layout.Controls.Add(WrapLabel(codeLabel), 0, 1);
             layout.Controls.Add(WrapControl(textBoxCode), 0, 2);
             layout.Controls.Add(WrapControl(gradientGet), 0, 3);
-            layout.Controls.Add(fileLabel, 0, 4);
+            layout.Controls.Add(WrapLabel(fileLabel), 0, 4);
             layout.Controls.Add(WrapControl(textBoxFile), 0, 5);
             layout.Controls.Add(WrapControl(gradientPrint), 0, 6);
-            layout.Controls.Add(statusLabel, 0, 7);
+            layout.Controls.Add(WrapLabel(statusLabel), 0, 7);
 
             textBoxCode.Enter += TextBoxCode_Enter;
             textBoxCode.Leave += TextBoxCode_Leave;
