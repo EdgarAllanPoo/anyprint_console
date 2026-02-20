@@ -143,7 +143,7 @@ namespace AnyPrintConsole
                 return wrapper;
             }
 
-            Panel WrapLabel(Control ctrl)
+            Panel WrapLabel(Label ctrl)
             {
                 Panel wrapper = new Panel();
                 wrapper.Dock = DockStyle.Fill;
