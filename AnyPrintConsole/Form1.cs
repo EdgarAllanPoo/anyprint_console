@@ -35,6 +35,7 @@ namespace AnyPrintConsole
             this.Text = "";
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
+            this.TopMost = true;
             this.BackColor = Color.Black;
             this.KeyPreview = true;
 
@@ -285,6 +286,11 @@ namespace AnyPrintConsole
                 PrintWithGhostscript(filePath,
                     copiesToPrint,
                     printMode);
+ 
+                // Force focus back
+                this.TopMost = true;
+                this.Activate();
+                this.BringToFront();
 
                 SetStatus(
                     $"Status: Print sent ({copiesToPrint} copies, {printMode})",
@@ -346,6 +352,7 @@ namespace AnyPrintConsole
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardError = true
+                    WindowStyle = ProcessWindowStyle.Hidden
                 };
 
                 using (Process p = Process.Start(psi))
