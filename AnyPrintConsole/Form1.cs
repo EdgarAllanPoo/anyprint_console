@@ -26,6 +26,7 @@ namespace AnyPrintConsole
         private int spinnerAngle = 0;
 
         private Process onScreenKeyboardProc;
+
         private readonly string ghostscriptPath =
             @"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe";
 
@@ -36,7 +37,7 @@ namespace AnyPrintConsole
         }
 
         // ======================================================
-        // ===================== UI SETUP =======================
+        // ====================== UI SETUP ======================
         // ======================================================
 
         private void SetupUI()
@@ -72,10 +73,12 @@ namespace AnyPrintConsole
             fileLabel.ForeColor = Color.White;
             statusLabel.ForeColor = Color.White;
 
-            Panel mainPanel = new Panel();
-            mainPanel.Size = new Size(1000, 750);
-            mainPanel.BackColor = Color.Transparent;
-            mainPanel.Anchor = AnchorStyles.None;
+            Panel mainPanel = new Panel
+            {
+                Size = new Size(1000, 750),
+                BackColor = Color.Transparent,
+                Anchor = AnchorStyles.None
+            };
 
             this.Controls.Add(mainPanel);
 
@@ -88,12 +91,14 @@ namespace AnyPrintConsole
             mainPanel.Left = (this.ClientSize.Width - mainPanel.Width) / 2;
             mainPanel.Top = (this.ClientSize.Height - mainPanel.Height) / 2;
 
-            TableLayoutPanel layout = new TableLayoutPanel();
-            layout.Dock = DockStyle.Fill;
-            layout.ColumnCount = 1;
-            layout.RowCount = 8;
-            layout.BackColor = Color.Transparent;
-            layout.Padding = new Padding(40, 30, 40, 30);
+            TableLayoutPanel layout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 8,
+                BackColor = Color.Transparent,
+                Padding = new Padding(40, 30, 40, 30)
+            };
 
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 22f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 8f));
@@ -106,10 +111,12 @@ namespace AnyPrintConsole
 
             mainPanel.Controls.Add(layout);
 
-            PictureBox logo = new PictureBox();
-            logo.Dock = DockStyle.Fill;
-            logo.SizeMode = PictureBoxSizeMode.Zoom;
-            logo.Margin = new Padding(0, 0, 0, 30);
+            PictureBox logo = new PictureBox
+            {
+                Dock = DockStyle.Fill,
+                SizeMode = PictureBoxSizeMode.Zoom,
+                Margin = new Padding(0, 0, 0, 30)
+            };
 
             string logoPath = Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
@@ -177,6 +184,9 @@ namespace AnyPrintConsole
             layout.Controls.Add(Wrap(textBoxFile), 0, 5);
             layout.Controls.Add(Wrap(gradientPrint), 0, 6);
             layout.Controls.Add(Wrap(statusLabel), 0, 7);
+
+            textBoxCode.Enter += TextBoxCode_Enter;
+            textBoxCode.Leave += TextBoxCode_Leave;
 
             InitializeLoadingOverlay();
         }
@@ -282,6 +292,7 @@ namespace AnyPrintConsole
             try
             {
                 ShowLoading("Downloading...");
+                SetStatus("Status: Downloading...", Color.Gold);
 
                 await Task.Run(() =>
                 {
@@ -294,7 +305,7 @@ namespace AnyPrintConsole
                     copiesToPrint = job.copies;
                     printMode = string.IsNullOrEmpty(job.printMode) ? "BW" : job.printMode;
 
-                    textBoxFile.Invoke(new Action(() =>
+                    this.Invoke(new Action(() =>
                     {
                         textBoxFile.Text =
                             job.filename +
@@ -359,9 +370,11 @@ namespace AnyPrintConsole
             }
         }
 
-        private void PrintWithGhostscript(string pdfPath,
-            int copies,
-            string printMode)
+        // ======================================================
+        // ================= GHOSTSCRIPT =========================
+        // ======================================================
+
+        private void PrintWithGhostscript(string pdfPath, int copies, string printMode)
         {
             if (!File.Exists(ghostscriptPath))
                 throw new Exception("Ghostscript not found.");
@@ -377,8 +390,7 @@ namespace AnyPrintConsole
                 .Any(p => p == printerName);
 
             if (!printerExists)
-                throw new Exception(
-                    $"Printer '{printerName}' not found.");
+                throw new Exception($"Printer '{printerName}' not found.");
 
             for (int i = 0; i < copies; i++)
             {
@@ -400,8 +412,7 @@ namespace AnyPrintConsole
 
                 using (Process p = Process.Start(psi))
                 {
-                    string error =
-                        p.StandardError.ReadToEnd();
+                    string error = p.StandardError.ReadToEnd();
                     p.WaitForExit();
 
                     if (p.ExitCode != 0)
@@ -409,6 +420,10 @@ namespace AnyPrintConsole
                 }
             }
         }
+
+        // ======================================================
+        // ================= KEYBOARD ============================
+        // ======================================================
 
         private void TextBoxCode_Enter(object sender, EventArgs e)
         {
@@ -431,8 +446,7 @@ namespace AnyPrintConsole
                     @"C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe";
 
                 if (File.Exists(tabTipPath))
-                    onScreenKeyboardProc =
-                        Process.Start(tabTipPath);
+                    onScreenKeyboardProc = Process.Start(tabTipPath);
             }
             catch { }
         }
