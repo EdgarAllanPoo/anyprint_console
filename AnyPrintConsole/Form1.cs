@@ -408,7 +408,7 @@ namespace AnyPrintConsole
                 });
 
                 // 30 second safety timeout
-                if (await Task.WhenAny(printTask, Task.Delay(30000)) != printTask)
+                if (await Task.WhenAny(printTask, Task.Delay(60000)) != printTask)
                 {
                     throw new Exception("Printing timed out.");
                 }
