@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 
 namespace AnyPrintConsole
 {
+    public class DoubleBufferedPanel : Panel
+    {
+        public DoubleBufferedPanel()
+        {
+            this.DoubleBuffered = true;
+            this.ResizeRedraw = true;
+        }
+    }
+
     public partial class Form1 : Form
     {
         private AnyPrintApiClient apiClient = new AnyPrintApiClient();
@@ -197,7 +206,7 @@ namespace AnyPrintConsole
 
         private void InitializeLoadingOverlay()
         {
-            loadingOverlay = new Panel
+            loadingOverlay = new DoubleBufferedPanel
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(160, 0, 0, 0),
@@ -217,7 +226,7 @@ namespace AnyPrintConsole
             loadingOverlay.Controls.Add(loadingLabel);
             this.Controls.Add(loadingOverlay);
 
-            spinnerTimer = new Timer { Interval = 16 };
+            spinnerTimer = new Timer { Interval = 30 };
             spinnerTimer.Tick += (s, e) =>
             {
                 spinnerAngle += 8;
