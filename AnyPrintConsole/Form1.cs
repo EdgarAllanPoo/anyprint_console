@@ -190,7 +190,9 @@ namespace AnyPrintConsole
             };
             gradientPrint.Click += button2_Click;
 
-            textBoxFile.Enabled = false;    
+            textBoxFile.ReadOnly = true;
+            textBoxFile.BackColor = Color.FromArgb(230, 230, 230);
+            textBoxFile.ForeColor = Color.Gray;
 
             // ===== ADD CONTROLS =====
             layout.Controls.Add(logo, 0, 0);
@@ -242,8 +244,10 @@ namespace AnyPrintConsole
 
                 statusLabel.Text = "Status: Ready to print";
 
+                textBoxFile.BackColor = Color.White;
+                textBoxFile.ForeColor = Color.Black;
+
                 gradientPrint.Enabled = true;
-                textBoxFile.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -277,10 +281,13 @@ namespace AnyPrintConsole
 
                 filePath = null;
                 textBoxCode.Text = "";
-                textBoxFile.Text = "";
 
+                textBoxFile.Text = "";
+                textBoxFile.ReadOnly = true;
+                textBoxFile.BackColor = Color.FromArgb(230, 230, 230);
+                textBoxFile.ForeColor = Color.Gray;
+                
                 gradientPrint.Enabled = false;
-                textBoxFile.Enabled = false;
             }
             catch (Exception ex)
             {
