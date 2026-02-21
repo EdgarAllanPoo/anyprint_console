@@ -191,8 +191,16 @@ namespace AnyPrintConsole
             gradientPrint.Click += button2_Click;
 
             textBoxFile.ReadOnly = true;
-            textBoxFile.BackColor = Color.FromArgb(230, 230, 230);
+            textBoxFile.TabStop = false;          // Prevent tab focus
+            textBoxFile.Cursor = Cursors.Default; // Remove I-beam cursor
+            textBoxFile.BackColor = Color.FromArgb(235, 235, 235);
             textBoxFile.ForeColor = Color.Gray;
+
+            // Prevent mouse focus
+            textBoxFile.GotFocus += (s, e) =>
+            {
+                this.ActiveControl = null;
+            };
 
             // ===== ADD CONTROLS =====
             layout.Controls.Add(logo, 0, 0);
@@ -281,12 +289,11 @@ namespace AnyPrintConsole
 
                 filePath = null;
                 textBoxCode.Text = "";
-
                 textBoxFile.Text = "";
-                textBoxFile.ReadOnly = true;
-                textBoxFile.BackColor = Color.FromArgb(230, 230, 230);
-                textBoxFile.ForeColor = Color.Gray;
                 
+                textBoxFile.BackColor = Color.FromArgb(235, 235, 235);
+                textBoxFile.ForeColor = Color.Gray;
+
                 gradientPrint.Enabled = false;
             }
             catch (Exception ex)
