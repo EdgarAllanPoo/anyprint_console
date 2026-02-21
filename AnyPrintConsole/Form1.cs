@@ -182,8 +182,16 @@ namespace AnyPrintConsole
             gradientPrint.Click += button2_Click;
 
             textBoxFile.ReadOnly = true;
+            textBoxFile.TabStop = false;           // Prevent tab focus
+            textBoxFile.Cursor = Cursors.Default;  // Remove I-beam
             textBoxFile.BackColor = Color.FromArgb(235, 235, 235);
             textBoxFile.ForeColor = Color.Gray;
+
+            // Prevent mouse focus
+            textBoxFile.GotFocus += (s, e) =>
+            {
+                this.ActiveControl = null;
+            };
 
             layout.Controls.Add(logo, 0, 0);
             layout.Controls.Add(Wrap(codeLabel), 0, 1);
@@ -381,6 +389,8 @@ namespace AnyPrintConsole
             finally
             {
                 HideLoading();
+
+                textBoxCode.Text = ""; 
 
                 textBoxFile.Text = "";
                 textBoxFile.BackColor = Color.FromArgb(235, 235, 235);
