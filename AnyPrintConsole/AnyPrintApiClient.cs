@@ -31,17 +31,29 @@ namespace AnyPrintConsole
         {
             var url = $"{BaseUrl}/jobs/{code}";
 
-            var response = await client.GetAsync(url);
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "GET";
+            request.Timeout = 15000;
 
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                throw new Exception(
-                    $"Server returned {(int)response.StatusCode} {response.ReasonPhrase}");
+                using (var response = (HttpWebResponse)await request.GetResponseAsync())
+                using (var stream = response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    var json = await reader.ReadToEndAsync();
+                    return JsonConvert.DeserializeObject<AnyPrintJob>(json);
+                }
             }
-
-            var json = await response.Content.ReadAsStringAsync();
-
-            return JsonConvert.DeserializeObject<AnyPrintJob>(json);
+            catch (WebException ex) when (ex.Response is HttpWebResponse errorResponse)
+            {
+                // Preserve status code for UI layer
+                throw new WebException(
+                    errorResponse.StatusCode.ToString(),
+                    ex,
+                    ex.Status,
+                    errorResponse);
+            }
         }
 
         // ===================== DOWNLOAD FILE =====================

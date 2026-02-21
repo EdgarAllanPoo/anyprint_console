@@ -347,10 +347,39 @@ namespace AnyPrintConsole
 
                 SetStatus("Status: Ready to print", Color.LimeGreen);
             }
+            catch (WebException ex) when (ex.Response is HttpWebResponse response)
+            {
+                string message;
+
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.NotFound:        // 404
+                        message = "Code not found.";
+                        break;
+
+                    case HttpStatusCode.Conflict:        // 409
+                        message = "Code already used.";
+                        break;
+
+                    default:
+                        message = "Network error.";
+                        break;
+                }
+
+                MessageBox.Show(message, "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+
+                SetStatus($"Status: {message}", Color.Red);
+            }
             catch (Exception ex)
             {
-                MessageBox.Show("Network error:\n\n" + ex.Message);
-                SetStatus("Status: Network error", Color.Red);
+                MessageBox.Show("Unexpected error:\n\n" + ex.Message,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+
+                SetStatus("Status: Unexpected error", Color.Red);
             }
             finally
             {
