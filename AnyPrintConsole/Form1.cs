@@ -303,6 +303,12 @@ namespace AnyPrintConsole
                 ShowLoading("Downloading...");
                 SetStatus("Status: Downloading...", Color.Gold);
 
+                // Variables to hold results
+                string downloadedFilePath = null;
+                int copies = 1;
+                string mode = "BW";
+                string fileDisplayText = "";
+
                 await Task.Run(() =>
                 {
                     var job = apiClient.GetJob(code);
@@ -310,20 +316,24 @@ namespace AnyPrintConsole
                     string folder = @"C:\AnyPrintFolder\FilesToPrint";
                     Directory.CreateDirectory(folder);
 
-                    filePath = apiClient.DownloadFile(job.fileUrl, folder);
-                    copiesToPrint = job.copies;
-                    printMode = string.IsNullOrEmpty(job.printMode) ? "BW" : job.printMode;
+                    downloadedFilePath = apiClient.DownloadFile(job.fileUrl, folder);
+                    copies = job.copies;
+                    mode = string.IsNullOrEmpty(job.printMode) ? "BW" : job.printMode;
 
-                    this.Invoke(new Action(() =>
-                    {
-                        textBoxFile.Text =
-                            job.filename +
-                            $"  (Copies: {job.copies}, Mode: {job.printMode})";
-                    }));
+                    fileDisplayText =
+                        job.filename +
+                        $"  (Copies: {job.copies}, Mode: {job.printMode})";
                 });
 
+                // ✅ Update UI AFTER await
+                filePath = downloadedFilePath;
+                copiesToPrint = copies;
+                printMode = mode;
+
+                textBoxFile.Text = fileDisplayText;
                 textBoxFile.BackColor = Color.White;
                 textBoxFile.ForeColor = Color.Black;
+
                 gradientPrint.Enabled = true;
 
                 SetStatus("Status: Ready to print", Color.LimeGreen);
