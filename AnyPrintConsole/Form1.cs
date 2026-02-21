@@ -351,7 +351,7 @@ namespace AnyPrintConsole
                     Arguments = printArgs,
                     CreateNoWindow = true,
                     UseShellExecute = false,
-                    RedirectStandardError = true
+                    RedirectStandardError = true,
                     WindowStyle = ProcessWindowStyle.Hidden
                 };
 
