@@ -317,7 +317,7 @@ namespace AnyPrintConsole
                 string mode = "BW";
                 string fileDisplayText = "";
 
-                await Task.Run(() =>
+                var downloadTask = Task.Run(() =>
                 {
                     var job = apiClient.GetJob(code);
 
@@ -332,6 +332,15 @@ namespace AnyPrintConsole
                         job.filename +
                         $"  (Copies: {job.copies}, Mode: {job.printMode})";
                 });
+
+                // ⬇ Timeout guard (30 seconds)
+                if (await Task.WhenAny(downloadTask, Task.Delay(30000)) != downloadTask)
+                {
+                    throw new Exception("Download timed out.");
+                }
+
+                // Ensure task actually completed (and rethrow exceptions if any)
+                await downloadTask;
 
                 // ✅ Update UI AFTER await
                 filePath = downloadedFilePath;
@@ -371,10 +380,18 @@ namespace AnyPrintConsole
                 ShowLoading("Sending to printer...");
                 SetStatus("Status: Printing...", Color.Gold);
 
-                await Task.Run(() =>
+                var printTask = Task.Run(() =>
                 {
                     PrintWithGhostscript(filePath, copiesToPrint, printMode);
                 });
+
+                // ⬇ Timeout guard (30 seconds)
+                if (await Task.WhenAny(printTask, Task.Delay(30000)) != printTask)
+                {
+                    throw new Exception("Printing timed out.");
+                }
+
+                await printTask;
 
                 this.Activate();
                 this.BringToFront();
