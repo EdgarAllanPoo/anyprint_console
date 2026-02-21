@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Drawing.Printing;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace AnyPrintConsole
 {
