@@ -42,6 +42,15 @@ namespace AnyPrintConsole
         public Form1()
         {
             InitializeComponent();
+
+            this.SetStyle(
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.UserPaint |
+                ControlStyles.OptimizedDoubleBuffer,
+                true);
+
+            this.UpdateStyles();
+
             SetupUI();
         }
 
@@ -283,7 +292,12 @@ namespace AnyPrintConsole
         private void HideLoading()
         {
             spinnerTimer.Stop();
+
+            this.SuspendLayout();
             loadingOverlay.Visible = false;
+            this.ResumeLayout(true);
+
+            this.Refresh();
         }
 
         private void SetStatus(string message, Color color)
