@@ -311,43 +311,21 @@ namespace AnyPrintConsole
                 ShowLoading("Downloading...");
                 SetStatus("Status: Downloading...", Color.Gold);
 
-                // Variables to hold results
-                string downloadedFilePath = null;
-                int copies = 1;
-                string mode = "BW";
-                string fileDisplayText = "";
+                var job = await apiClient.GetJobAsync(code);
 
-                var downloadTask = Task.Run(() =>
-                {
-                    var job = apiClient.GetJob(code);
+                filePath = await apiClient.DownloadFileAsync(
+                    job.fileUrl,
+                    @"C:\AnyPrintFolder\FilesToPrint");
 
-                    string folder = @"C:\AnyPrintFolder\FilesToPrint";
-                    Directory.CreateDirectory(folder);
+                copiesToPrint = job.copies;
+                printMode = string.IsNullOrEmpty(job.printMode)
+                    ? "BW"
+                    : job.printMode;
 
-                    downloadedFilePath = apiClient.DownloadFile(job.fileUrl, folder);
-                    copies = job.copies;
-                    mode = string.IsNullOrEmpty(job.printMode) ? "BW" : job.printMode;
+                textBoxFile.Text =
+                    job.filename +
+                    $"  (Copies: {job.copies}, Mode: {job.printMode})";
 
-                    fileDisplayText =
-                        job.filename +
-                        $"  (Copies: {job.copies}, Mode: {job.printMode})";
-                });
-
-                // ⬇ Timeout guard (30 seconds)
-                if (await Task.WhenAny(downloadTask, Task.Delay(30000)) != downloadTask)
-                {
-                    throw new Exception("Download timed out.");
-                }
-
-                // Ensure task actually completed (and rethrow exceptions if any)
-                await downloadTask;
-
-                // ✅ Update UI AFTER await
-                filePath = downloadedFilePath;
-                copiesToPrint = copies;
-                printMode = mode;
-
-                textBoxFile.Text = fileDisplayText;
                 textBoxFile.BackColor = Color.White;
                 textBoxFile.ForeColor = Color.Black;
 
@@ -385,12 +363,13 @@ namespace AnyPrintConsole
                     PrintWithGhostscript(filePath, copiesToPrint, printMode);
                 });
 
-                // ⬇ Timeout guard (30 seconds)
+                // 30 second safety timeout
                 if (await Task.WhenAny(printTask, Task.Delay(30000)) != printTask)
                 {
                     throw new Exception("Printing timed out.");
                 }
 
+                // Await again to rethrow internal exceptions
                 await printTask;
 
                 this.Activate();
@@ -400,19 +379,22 @@ namespace AnyPrintConsole
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Print failed: " + ex.Message);
+                MessageBox.Show("Print failed:\n\n" + ex.Message);
                 SetStatus("Status: Print failed", Color.Red);
             }
             finally
             {
                 HideLoading();
 
-                textBoxCode.Text = ""; 
-
+                // Reset UI state
+                textBoxCode.Text = "";
                 textBoxFile.Text = "";
                 textBoxFile.BackColor = Color.FromArgb(235, 235, 235);
                 textBoxFile.ForeColor = Color.Gray;
+
                 gradientPrint.Enabled = false;
+
+                filePath = null;
             }
         }
 

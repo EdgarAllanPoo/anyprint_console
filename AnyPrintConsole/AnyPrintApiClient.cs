@@ -1,6 +1,7 @@
 using System;
 using System.IO;
-using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace AnyPrintConsole
@@ -19,42 +20,52 @@ namespace AnyPrintConsole
     {
         private const string BaseUrl = "https://anyprint.id/api";
 
-        public AnyPrintApiClient()
+        private static readonly HttpClient client = new HttpClient
         {
-            // Force modern TLS
-            ServicePointManager.SecurityProtocol =
-                SecurityProtocolType.Tls12 |
-                SecurityProtocolType.Tls13;
+            Timeout = TimeSpan.FromSeconds(15)
+        };
 
-            // Allow strong crypto
-            ServicePointManager.Expect100Continue = true;
-        }
+        // ===================== GET JOB =====================
 
-        public AnyPrintJob GetJob(string code)
+        public async Task<AnyPrintJob> GetJobAsync(string code)
         {
             var url = $"{BaseUrl}/jobs/{code}";
 
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = "GET";
-            request.Timeout = 15000;
+            var response = await client.GetAsync(url);
 
-            using (var response = (HttpWebResponse)request.GetResponse())
-            using (var stream = response.GetResponseStream())
-            using (var reader = new StreamReader(stream))
+            if (!response.IsSuccessStatusCode)
             {
-                var json = reader.ReadToEnd();
-                return JsonConvert.DeserializeObject<AnyPrintJob>(json);
+                throw new Exception(
+                    $"Server returned {(int)response.StatusCode} {response.ReasonPhrase}");
             }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<AnyPrintJob>(json);
         }
 
-        public string DownloadFile(string fileUrl, string saveFolder)
+        // ===================== DOWNLOAD FILE =====================
+
+        public async Task<string> DownloadFileAsync(string fileUrl, string saveFolder)
         {
-            var fileName = Path.GetFileName(fileUrl);
+            Directory.CreateDirectory(saveFolder);
+
+            var fileName = Path.GetFileName(new Uri(fileUrl).AbsolutePath);
             var localPath = Path.Combine(saveFolder, fileName);
 
-            using (var client = new WebClient())
+            using (var response = await client.GetAsync(fileUrl))
             {
-                client.DownloadFile(fileUrl, localPath);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception(
+                        $"Download failed: {(int)response.StatusCode} {response.ReasonPhrase}");
+                }
+
+                using (var stream = await response.Content.ReadAsStreamAsync())
+                using (var fileStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
             }
 
             return localPath;
