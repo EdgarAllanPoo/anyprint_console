@@ -358,5 +358,93 @@ namespace AnyPrintConsole
                 gradientPrint.Enabled = false;
             }
         }
+
+        private void PrintWithGhostscript(string pdfPath,
+            int copies,
+            string printMode)
+        {
+            if (!File.Exists(ghostscriptPath))
+                throw new Exception("Ghostscript not found.");
+
+            string printerName =
+                printMode == "BW"
+                ? "Anyprint BW"
+                : "Anyprint Color";
+
+            bool printerExists =
+                PrinterSettings.InstalledPrinters
+                .Cast<string>()
+                .Any(p => p == printerName);
+
+            if (!printerExists)
+                throw new Exception(
+                    $"Printer '{printerName}' not found.");
+
+            for (int i = 0; i < copies; i++)
+            {
+                string printArgs =
+                    "-dPrinted -dBATCH -dNOPAUSE " +
+                    "-sDEVICE=mswinpr2 " +
+                    $"-sOutputFile=\"%printer%{printerName}\" " +
+                    $"\"{pdfPath}\"";
+
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = ghostscriptPath,
+                    Arguments = printArgs,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+
+                using (Process p = Process.Start(psi))
+                {
+                    string error =
+                        p.StandardError.ReadToEnd();
+                    p.WaitForExit();
+
+                    if (p.ExitCode != 0)
+                        throw new Exception(error);
+                }
+            }
+        }
+
+        private void TextBoxCode_Enter(object sender, EventArgs e)
+        {
+            ShowKeyboard();
+        }
+
+        private void TextBoxCode_Leave(object sender, EventArgs e)
+        {
+            HideKeyboard();
+        }
+
+        private void ShowKeyboard()
+        {
+            try
+            {
+                foreach (var proc in Process.GetProcessesByName("TabTip"))
+                    proc.Kill();
+
+                string tabTipPath =
+                    @"C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe";
+
+                if (File.Exists(tabTipPath))
+                    onScreenKeyboardProc =
+                        Process.Start(tabTipPath);
+            }
+            catch { }
+        }
+
+        private void HideKeyboard()
+        {
+            try
+            {
+                foreach (var proc in Process.GetProcessesByName("TabTip"))
+                    proc.Kill();
+            }
+            catch { }
+        }
     }
 }
