@@ -216,11 +216,17 @@ namespace AnyPrintConsole
             textBoxCode.Leave += TextBoxCode_Leave;
         }
 
+        private void SetStatus(string message, Color color)
+        {
+            statusLabel.Text = message;
+            statusLabel.ForeColor = color;
+        }
+
         // ================= ORIGINAL LOGIC BELOW =================
 
         private void button1_Click(object sender, EventArgs e)
         {
-            statusLabel.Text = "Status: Downloading...";
+            SetStatus("Status: Downloading...", Color.Gold);
             textBoxFile.Text = "";
             filePath = null;
 
@@ -229,7 +235,7 @@ namespace AnyPrintConsole
             if (code.Length != 8 || !long.TryParse(code, out _))
             {
                 MessageBox.Show("Invalid code. Code must be 8 digits.");
-                statusLabel.Text = "Status: Invalid code";
+                SetStatus("Status: Invalid code", Color.Red);
                 return;
             }
 
@@ -250,7 +256,7 @@ namespace AnyPrintConsole
                     job.filename +
                     $"  (Copies: {job.copies}, Mode: {job.printMode})";
 
-                statusLabel.Text = "Status: Ready to print";
+                SetStatus("Status: Ready to print", Color.LimeGreen);
 
                 textBoxFile.BackColor = Color.White;
                 textBoxFile.ForeColor = Color.Black;
@@ -260,7 +266,7 @@ namespace AnyPrintConsole
             catch (Exception ex)
             {
                 MessageBox.Show("Network error:\n\n" + ex.Message);
-                statusLabel.Text = "Status: Network error";
+                SetStatus("Status: Network error", Color.Red);
             }
         }
 
@@ -272,8 +278,7 @@ namespace AnyPrintConsole
                 return;
             }
 
-            statusLabel.Text =
-                $"Status: Printing {copiesToPrint} copies...";
+            SetStatus($"Status: Printing {copiesToPrint} copies...", Color.Gold);
 
             try
             {
@@ -281,8 +286,10 @@ namespace AnyPrintConsole
                     copiesToPrint,
                     printMode);
 
-                statusLabel.Text =
-                    $"Status: Print sent ({copiesToPrint} copies, {printMode})";
+                SetStatus(
+                    $"Status: Print sent ({copiesToPrint} copies, {printMode})",
+                    Color.LimeGreen);
+
 
                 if (File.Exists(filePath))
                     File.Delete(filePath);
@@ -290,7 +297,7 @@ namespace AnyPrintConsole
                 filePath = null;
                 textBoxCode.Text = "";
                 textBoxFile.Text = "";
-                
+
                 textBoxFile.BackColor = Color.FromArgb(235, 235, 235);
                 textBoxFile.ForeColor = Color.Gray;
 
@@ -299,7 +306,7 @@ namespace AnyPrintConsole
             catch (Exception ex)
             {
                 MessageBox.Show("Print failed: " + ex.Message);
-                statusLabel.Text = "Status: Print failed";
+                SetStatus("Status: Print failed", Color.Red);
             }
         }
 
