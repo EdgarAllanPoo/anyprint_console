@@ -34,11 +34,6 @@ namespace AnyPrintConsole
         private Timer spinnerTimer;
         private int spinnerAngle = 0;
 
-        private Timer fadeTimer;
-        private int overlayAlpha = 0;
-        private bool fadingIn = false;
-        private bool fadingOut = false;
-
         private Process onScreenKeyboardProc;
 
         private readonly string ghostscriptPath =
@@ -47,15 +42,6 @@ namespace AnyPrintConsole
         public Form1()
         {
             InitializeComponent();
-
-            this.SetStyle(
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.UserPaint |
-                ControlStyles.OptimizedDoubleBuffer,
-                true);
-
-            this.UpdateStyles();
-
             SetupUI();
         }
 
@@ -231,6 +217,7 @@ namespace AnyPrintConsole
             loadingOverlay = new DoubleBufferedPanel
             {
                 Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(160, 0, 0, 0),
                 Visible = false
             };
 
@@ -246,19 +233,13 @@ namespace AnyPrintConsole
 
             loadingOverlay.Controls.Add(loadingLabel);
             this.Controls.Add(loadingOverlay);
-            loadingOverlay.BringToFront();
 
-            // Spinner
             spinnerTimer = new Timer { Interval = 30 };
             spinnerTimer.Tick += (s, e) =>
             {
                 spinnerAngle += 8;
                 loadingOverlay.Invalidate();
             };
-
-            // Fade animation timer
-            fadeTimer = new Timer { Interval = 15 }; // ~60 FPS
-            fadeTimer.Tick += FadeTick;
 
             loadingOverlay.Paint += DrawSpinner;
         }
@@ -291,56 +272,18 @@ namespace AnyPrintConsole
             loadingLabel.Top = centerY + 50;
         }
 
-        private void FadeTick(object sender, EventArgs e)
-        {
-            if (fadingIn)
-            {
-                overlayAlpha += 12;
-
-                if (overlayAlpha >= 160)
-                {
-                    overlayAlpha = 160;
-                    fadingIn = false;
-                    fadeTimer.Stop();
-                    spinnerTimer.Start();
-                }
-            }
-            else if (fadingOut)
-            {
-                overlayAlpha -= 12;
-
-                if (overlayAlpha <= 0)
-                {
-                    overlayAlpha = 0;
-                    fadingOut = false;
-                    fadeTimer.Stop();
-                    spinnerTimer.Stop();
-                    loadingOverlay.Visible = false;
-                }
-            }
-
-            loadingOverlay.BackColor = Color.FromArgb(overlayAlpha, 0, 0, 0);
-        }
-
         private void ShowLoading(string message)
         {
             loadingLabel.Text = message;
-
-            overlayAlpha = 0;
-            loadingOverlay.BackColor = Color.FromArgb(overlayAlpha, 0, 0, 0);
             loadingOverlay.Visible = true;
             loadingOverlay.BringToFront();
-
-            fadingOut = false;
-            fadingIn = true;
-            fadeTimer.Start();
+            spinnerTimer.Start();
         }
 
         private void HideLoading()
         {
-            fadingIn = false;
-            fadingOut = true;
-            fadeTimer.Start();
+            spinnerTimer.Stop();
+            loadingOverlay.Visible = false;
         }
 
         private void SetStatus(string message, Color color)
