@@ -16,6 +16,9 @@ namespace AnyPrintConsole
         private int copiesToPrint = 1;
         private string printMode = "BW";
 
+        private GradientButton gradientGet;
+        private GradientButton gradientPrint;
+
         private Process onScreenKeyboardProc;
         private readonly string ghostscriptPath =
             @"C:\Program Files\gs\gs10.06.0\bin\gswin64c.exe";
@@ -164,7 +167,7 @@ namespace AnyPrintConsole
             }
 
             // ===== BUTTONS =====
-            GradientButton gradientGet = new GradientButton
+            gradientGet = new GradientButton
             {
                 Text = "GET FILE",
                 Height = 80,
@@ -175,16 +178,19 @@ namespace AnyPrintConsole
             };
             gradientGet.Click += button1_Click;
 
-            GradientButton gradientPrint = new GradientButton
+            gradientPrint = new GradientButton
             {
                 Text = "PRINT",
                 Height = 80,
                 Font = new Font("Segoe UI", 22F, FontStyle.Bold),
                 ForeColor = Color.White,
                 Color1 = Color.FromArgb(255, 120, 80),
-                Color2 = Color.FromArgb(30, 60, 120)
+                Color2 = Color.FromArgb(30, 60, 120),
+                Enabled = false
             };
             gradientPrint.Click += button2_Click;
+
+            textBoxFile.Enabled = false;    
 
             // ===== ADD CONTROLS =====
             layout.Controls.Add(logo, 0, 0);
@@ -235,6 +241,9 @@ namespace AnyPrintConsole
                     $"  (Copies: {job.copies}, Mode: {job.printMode})";
 
                 statusLabel.Text = "Status: Ready to print";
+
+                gradientPrint.Enabled = true;
+                textBoxFile.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -269,6 +278,9 @@ namespace AnyPrintConsole
                 filePath = null;
                 textBoxCode.Text = "";
                 textBoxFile.Text = "";
+
+                gradientPrint.Enabled = false;
+                textBoxFile.Enabled = false;
             }
             catch (Exception ex)
             {
